@@ -71,8 +71,68 @@ def new_blog():
 
 #PUT BLOG
 
+@api.route('/edit_blog/<int:id>', methods=['PUT'])
+def edit_blog(id):
+
+    #Añadir autenticacion de admin
+
+    data = request.json
+    blog_type = data.get('type')
+    title = data.get('title')
+    img_header = data.get('img_header')
+    img_final = data.get('img_final')
+    source = data.get('source')
+    
+    blog = Blog_news.query.get(id)
+    
+    if not blog:
+        blog = Blog_recipe.query.get(id)
+        if not blog:
+            return jsonify({"error": "Blog not found"}), 404
+    
+    blog.title = title
+    blog.img_header = img_header
+    blog.img_final = img_final
+    blog.source = source
+    
+    if isinstance(blog, Blog_news):
+        if blog_type != 'news':
+            return jsonify({"error": "Blog type mismatch"}), 400
+        blog.text = data.get('text', blog.text)
+    
+    elif isinstance(blog, Blog_recipe):
+        if blog_type != 'recipe':
+            return jsonify({"error": "Blog type mismatch"}), 400
+        blog.text_intro = data.get('text_intro', blog.text_intro)
+        blog.text_ingredients = data.get('text_ingredients', blog.text_ingredients)
+        blog.text_steps = data.get('text_steps', blog.text_steps)
+    
+    else:
+        return jsonify({"error": "Invalid blog type"}), 400
+    
+    db.session.commit()
+    
+    return jsonify({"message": "Blog updated successfully", "blog_id": blog.id}), 200
+
 
 #DELETE BLOG
+
+@api.route('/delete_blog/<int:id>', methods=['DELETE'])
+def delete_blog(id):
+
+    #Añadir autenticacion de admin
+
+    blog = Blog_news.query.get(id)
+    
+    if not blog:
+        blog = Blog_recipe.query.get(id)
+        if not blog:
+            return jsonify({"error": "Blog not found"}), 404
+
+    db.session.delete(blog)
+    db.session.commit()
+    
+    return jsonify({"message": "Blog deleted successfully"}), 200
 
 
 #GET BLOGS
