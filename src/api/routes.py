@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Blog_recipe, Blog_news
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 
@@ -20,3 +20,90 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+
+#POST BLOG
+
+@api.route('/new_blog', methods=['POST'])
+def new_blog():
+
+    #Añadir autenticacion de admin
+
+    data = request.json
+    blog_type = data.get('type')
+    author_id = data.get('author')
+    title = data.get('title')
+    img_header = data.get('img_header')
+    img_final = data.get('img_final')
+    source = data.get('source')
+
+    if blog_type == 'recipe':
+        text_intro = data.get('text_intro')
+        text_ingredients = data.get('text_ingredients')
+        text_steps = data.get('text_steps')
+        new_blog = Blog_recipe(
+            author=author_id,
+            title=title,
+            img_header=img_header,
+            text_intro=text_intro,
+            text_ingredients=text_ingredients,
+            text_steps=text_steps,
+            img_final=img_final,
+            source=source
+        )
+    elif blog_type == 'news':
+        text = data.get('text')
+        new_blog = Blog_news(
+            author=author_id,
+            title=title,
+            img_header=img_header,
+            text=text,
+            img_final=img_final,
+            source=source
+        )
+    else:
+        return jsonify({"error": "Invalid blog type"}), 400
+
+    db.session.add(new_blog)
+    db.session.commit()
+    return jsonify({"message": "Blog created successfully", "blog_id": new_blog.id}), 201
+
+
+#PUT BLOG
+
+
+#DELETE BLOG
+
+
+#GET BLOGS
+
+@api.route('/blog', methods=['GET'])
+def get_all_blogs():
+    news_blogs = Blog_news.query.all()
+    recipe_blogs = Blog_recipe.query.all()
+    
+    all_blogs = news_blogs + recipe_blogs
+    
+    serialized_blogs = [blog.serialize() for blog in all_blogs]
+    
+    return jsonify({'msg': 'OK',
+                    'data': serialized_blogs})
+
+
+#GET BLOG/ID
+
+@api.route('/blog/<int:id>', methods=['GET'])
+def get_blog(id):
+
+    blog = Blog_news.query.get(id)
+    if blog:
+        serialized_blog = blog.serialize()
+        return jsonify({'msg': 'OK', 'data': serialized_blog}), 200
+    
+
+    blog = Blog_recipe.query.get(id)
+    if blog:
+        serialized_blog = blog.serialize()
+        return jsonify({'msg': 'OK', 'data': serialized_blog}), 200
+
+    return jsonify({'msg': 'Blog not found'}), 404
