@@ -2,6 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
 from api.models import db, User, Blog_recipe, Blog_news
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
@@ -22,12 +23,16 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
-#POST BLOG
+# POST BLOG
 
 @api.route('/new_blog', methods=['POST'])
+@jwt_required()
 def new_blog():
-
-    #Añadir autenticacion de admin
+    
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or not user.is_admin:
+        return jsonify({"success": False, "msg": "Admin access required"}), 403
 
     data = request.json
     blog_type = data.get('type')
@@ -69,12 +74,16 @@ def new_blog():
     return jsonify({"message": "Blog created successfully", "blog_id": new_blog.id}), 201
 
 
-#PUT BLOG
+# PUT BLOG
 
 @api.route('/edit_blog/<int:id>', methods=['PUT'])
+@jwt_required()
 def edit_blog(id):
-
-    #Añadir autenticacion de admin
+    
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or not user.is_admin:
+        return jsonify({"success": False, "msg": "Admin access required"}), 403
 
     data = request.json
     blog_type = data.get('type')
@@ -115,12 +124,16 @@ def edit_blog(id):
     return jsonify({"message": "Blog updated successfully", "blog_id": blog.id}), 200
 
 
-#DELETE BLOG
+# DELETE BLOG
 
 @api.route('/delete_blog/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_blog(id):
-
-    #Añadir autenticacion de admin
+    
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or not user.is_admin:
+        return jsonify({"success": False, "msg": "Admin access required"}), 403
 
     blog = Blog_news.query.get(id)
     
@@ -133,7 +146,6 @@ def delete_blog(id):
     db.session.commit()
     
     return jsonify({"message": "Blog deleted successfully"}), 200
-
 
 #GET BLOGS
 
