@@ -32,8 +32,8 @@ class Baby(db.Model):
     name = db.Column(db.String(120), nullable=False)
     gender=db.Column(db.String(120),  nullable=False)
     age= db.Column(db.Integer)
-    height=db.Column(db.Float) 
-    weight=db.Column(db.Float)
+    height=db.Column(db.Integer)
+    weigth=db.Column(db.Integer)
     report_id=db.Column(db.Integer, db.ForeignKey('report.id'))
 
     report = db.relationship('Report', backref='baby', lazy=True)
@@ -48,8 +48,8 @@ class Baby(db.Model):
             "name": self.name,
             "gender": self.gender,
             "age": self.age,
-            "height": self.height,
-            "weight": self.weight,
+            "heigth": self.height,
+            "weigth": self.weigth,
             # do not serialize the password, its a security breach
         }
         
