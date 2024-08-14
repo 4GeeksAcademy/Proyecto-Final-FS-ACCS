@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Baby, Report, Blog_recipe, Blog_news
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
@@ -64,7 +64,7 @@ def check_jwt():
     user = User.query.get(user_id)
     if user:
         return jsonify({'success' : True, 'user': user.serialize()}), 200
-    return jsonify({'success' : False, 'msg': 'Bad Token'}), 200
+    return jsonify({'success' : False, 'msg': 'Bad Token'}), 401
 
 
 #[Get] Protected
@@ -110,7 +110,7 @@ def edit_baby(id):
     baby.gender = data['gender']
     baby.age = data['age']
     baby.height = data['height']
-    baby.weigth = data['weigth']
+    baby.weight = data['weight']
     #baby.avatar_path = data['avatar_path']
 
     db.session.commit()
