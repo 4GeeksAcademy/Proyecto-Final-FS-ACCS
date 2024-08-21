@@ -9,7 +9,9 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
+from api.quickstart.quickstart import GoogleCalendarManager
 import os
+
 
 api = Blueprint('api', __name__)
 
@@ -518,3 +520,42 @@ def upload_file():
 @api.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+#API Calendar
+calendar_manager = GoogleCalendarManager()
+
+#[GET] Listar eventos
+@api.route('/events', methods=['GET'])
+def list_upcoming_events():
+    max_results = request.args.get('max_results', default=10, type=int)
+    events = calendar_manager.list_upcoming_events(max_results=max_results)
+    return jsonify(events)
+
+#[POST] Crear eventos
+@api.route('/events', methods=['POST'])
+def create_event():
+    data = request.json
+    summary = data.get('summary')
+    start_time = data.get('start_time')
+    end_time = data.get('end_time')
+    timezone = data.get('timezone')
+    attendees = data.get('attendees', [])
+    calendar_manager.create_event(summary, start_time, end_time, timezone, attendees)
+    return jsonify({"message": "Event created successfully"})
+
+#[PUT] Editar eventos
+@api.route('/events/<event_id>', methods=['PUT'])
+def update_event(event_id):
+    data = request.json
+    summary = data.get('summary')
+    start_time = data.get('start_time')
+    end_time = data.get('end_time')
+    updated_event = calendar_manager.update_event(event_id, summary, start_time, end_time)
+    return jsonify(updated_event)
+
+#[DELETE] Borrar eventos
+@api.route('/events/<event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    calendar_manager.delete_event(event_id)
+    return jsonify({"message": "Event deleted successfully"})

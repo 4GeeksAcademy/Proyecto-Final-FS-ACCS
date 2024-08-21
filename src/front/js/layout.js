@@ -20,6 +20,7 @@ import { ViewReport } from "./pages/view_report.jsx";
 import { EditReport } from "./pages/edit_report.jsx";
 import { ViewReports } from "./pages/view_all_reports.jsx";
 import { AverageReportPage } from "./pages/average_report.jsx";
+import { Calendar } from "./pages/calendar.jsx";
 
 import injectContext from "./store/appContext";
 
@@ -62,6 +63,8 @@ const Layout = () => {
                         <Route path="/edit_blog/:type/:id" element={<EditBlog />} />
                         {/* 404 */}
                         <Route element={<h1>Not found!</h1>} />
+                        {/* Calendar */}
+                        <Route element={<Calendar />} path="/calendar" />
                     </Routes>
                 </ScrollToTop>
             </BrowserRouter>
