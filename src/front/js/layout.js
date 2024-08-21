@@ -24,6 +24,7 @@ import { AverageReportPage } from "./pages/average_report.jsx";
 import injectContext from "./store/appContext";
 
 import { Gestor_perfil } from "./pages/gestor_perfil.js";
+import { Reset_password } from "./pages/reset_password.js";
 
 //create your first component
 const Layout = () => {
@@ -46,6 +47,7 @@ const Layout = () => {
                         <Route element={<Register />} path="/Register" />
                         {/* Bebé */}
                         <Route element={<Gestor_perfil />} path="/gestor_perfil" />
+                        <Route element={<Reset_password />} path="/reset_password" />
                         <Route element={<Gestor_bebe />} path="/gestor_bebe" />
                         {/* Report */}
                         <Route element={<AddReport />} path="/dashboard" />

@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 import os
+from flask_mail import Mail, Message
 
 api = Blueprint('api', __name__)
 
@@ -518,3 +519,77 @@ def upload_file():
 @api.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+#Ruta para Ver la Información de un Perfil
+#Obtener perfil por EMAIL
+@api.route('/user/email/<string:email>', methods=['GET'])
+def get_user_by_email(email):
+    user = User.query.filter_by(email=email).first()
+    if user:
+        return jsonify({'success': True, 'user': user.serialize()}), 200
+    return jsonify({'success': False, 'msg': 'User not found'}), 404
+##Obtener perfil por EMAIL
+@api.route('/user/<int:id>', methods=['GET'])
+def get_user_by_id(id):
+    user = User.query.get(id)
+    if user:
+        return jsonify({'success': True, 'user': user.serialize()}), 200
+    return jsonify({'success': False, 'msg': 'User not found'}), 404
+
+# Ruta para restablecer la contraseña
+@api.route('/reset_password', methods=['POST'])
+def reset_password():
+    try:
+        data = request.json
+        email = data.get('email')
+        new_password = data.get('password')
+        # Validación de datos
+        if not email or not new_password:
+            return jsonify({"success": False, "message": "Email and new password are required."}), 400
+        # Buscar el usuario por email
+        user = User.query.filter_by(email=email).first()
+        if user is None:
+            return jsonify({"success": False, "message": "User not found."}), 404
+
+        # Hash de la nueva contraseña
+        #hashed_password = generate_password_hash(new_password)
+
+        # Actualizar la contraseña del usuario
+        #user.password = hashed_password
+        user.password = new_password
+        db.session.commit()
+
+         # Enviar correo electrónico de confirmación
+        # msg = Message(subject="Password Reset Confirmation",
+        #               sender="sandbox.smtp.mailtrap.io",
+        #               recipients=[email],
+        #               body=f"Hi {user.username}, your password has been successfully reset.")
+        
+        # mail.send(msg)
+
+        return jsonify({"success": True, "message": "Password updated successfully."}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "message": "An error occurred."}), 500
+    
+#ruta /api/babies/user/:userId y devuelve la lista de bebés del usuario especificado
+@api.route('/babies/user/<int:user_id>', methods=['GET'])
+def get_babies_by_user(user_id):
+    try:
+        # Buscar el usuario por ID
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+
+        # Obtener todos los bebés asociados con el usuario
+        babies = Baby.query.filter_by(user_id=user_id).all()
+        
+        # Serializar los datos de los bebés
+        serialized_babies = [baby.serialize() for baby in babies]
+
+        return jsonify({"babies": serialized_babies}), 200
+    except Exception as e:
+        print(f"Error fetching babies: {e}")
+        return jsonify({"msg": "An error occurred"}), 500

@@ -42,6 +42,18 @@ class Baby(db.Model):
 
     def __repr__(self):
         return f'<Baby {self.name}>'
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "gender": self.gender,
+            "age": self.age,
+            "height": self.height,
+            "weight": self.weight,
+            "avatar_path": self.avatar_path,
+            "user_id": self.user_id
+        }
 
         
 class Report(db.Model):

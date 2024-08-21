@@ -21,13 +21,94 @@ const getState = ({ getStore, getActions, setStore }) => {
                 height: "",
                 weight: ""
             },
-			blogs: []
+			blogs: [],
+            userData:{
+				username: "",
+				email:"",
+				password:""
+            },
+            babies: [] // Agregado para almacenar la lista de bebés
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
+            //Accion para obtener el perfil del usuario por EMAIL
+			getUserProfileByEmail: async (email) => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + `/api/user/email/${email}`);
+					if (response.ok) {
+						const data = await response.json();
+						return data.user;
+					} else {
+						const errorData = await response.json();
+						console.error("Failed to fetch user profile:", errorData.msg);
+						return null;
+					}
+				} catch (error) {
+					console.error("Error fetching user profile:", error);
+					return null;
+				}
+			},
+			//Accion para obtener el perfil del usuario por ID
+			getUserProfileById: async () => {
+				
+				try {
+					//pasando el userID como paramentro
+					//const response = await fetch(process.env.BACKEND_URL + `/api/user/${userId}`);
+					const resp = await fetch(process.env.BACKEND_URL + "/api/user/1"); // Ejemplo: obtener datos del user id=1
+					// if (response.ok) {
+					// 	const data = await response.json();
+					// 	return data.user;
+					// } else {
+					// 	const errorData = await response.json();
+					// 	console.error("Failed to fetch user profile:", errorData.msg);
+					// 	return null;
+					// }
+					const data = await resp.json();
+                    if (resp.ok && data && data.user) {
+                        setStore({ userData: data.user });
+                    }else{
+						console.error("Failed to fetch user profile:", data.msg || "Unknown error");
+					}
+				} catch (error) {
+					console.error("Error fetching user profile:", error);
+				}
+			},
+			//accion para reset password
+			resetPassword: async (email, password) => {
+				try {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/reset_password", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error("Error resetting password:", error);
+                    return { success: false };
+                }
+            },
+            // Accion para obtener la lista de bebés del usuario
+            getBabiesByUserId: async () => {
+                try {
+                    const store = getStore();
+                    //const userId = store.userData.id; // Suponiendo que userData contiene el id del usuario
+                    const response = await fetch(process.env.BACKEND_URL + "api/babies/user/1");
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStore({ babies: data.babies }); // Asumiendo que la respuesta contiene una lista de bebés
+                    } else {
+                        console.error("Failed to fetch babies");
+                    }
+                } catch (error) {
+                    console.error("Error fetching babies", error);
+                }
+            },
 
 			// Nueva accion para obtener datos del bebe
 			fetchBabyData: async () => {

@@ -11,6 +11,7 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail, Message  # Importa Flask-Mail
 
 # from models import Person
 
@@ -21,6 +22,15 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 jwt = JWTManager(app)
+
+app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USERNAME'] = '25f6170f0cbdca'
+app.config['MAIL_PASSWORD'] = '84d90f294c4639'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+mail = Mail(app)  # Inicializa Flask-Mail con la configuración
+
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
