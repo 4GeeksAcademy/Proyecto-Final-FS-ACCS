@@ -1,9 +1,8 @@
 import React, { useContext, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-
 import { Context } from "../store/appContext";
 
 export const Change_password = () => {
+    const { store, actions } = useContext(Context);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,29 +23,20 @@ export const Change_password = () => {
         }
 
         try {
-            const baseUrl = process.env.BACKEND_URL;
-            const response = await fetch(baseUrl + '/api/changepassworduser', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Enviar el token en la cabecera
-                },
-                body: JSON.stringify({ currentPassword, newPassword }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                setMessage(data.msg);
+    
+            const result = await actions.changePassword(currentPassword, newPassword);
+            if (result) {
+                setMessage('Password updated successfully.');
                 setError('');
                 setCurrentPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
             } else {
-                setError(data.msg || 'An error occurred');
+                setError('An error occurred while updating the password.');
                 setMessage('');
             }
         } catch (err) {
-            setError('An error occurred');
+            setError('An error occurred.');
             setMessage('');
         }
     };

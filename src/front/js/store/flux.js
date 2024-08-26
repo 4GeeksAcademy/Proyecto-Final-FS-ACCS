@@ -357,6 +357,35 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log("Error loading message from backend", error)
 				}
 			},
+            changePassword: async (currentPassword, newPassword) => {
+                const store = getStore(); 
+                const token = store.token;
+                try {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/changepassworduser", {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            'Authorization': `Bearer ${token}` 
+                        },
+                        body: JSON.stringify({
+                            current_password: currentPassword,
+                            new_password: newPassword
+                        })
+                    });
+            
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.msg || "Error updating password");
+                    }
+            
+                    const data = await response.json();
+                    console.log(data.msg);
+                    return data;
+                } catch (error) {
+                    console.error("Error changing password:", error);
+                    return null; 
+                }
+            },
       
 			changeColor: (index, color) => {
 				//get the store
