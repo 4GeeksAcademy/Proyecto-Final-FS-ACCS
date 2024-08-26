@@ -13,6 +13,13 @@ export const Login = () => {
         password: '',
     });
 
+	const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+    const [forgotPasswordError, setForgotPasswordError] = useState('');
+    const [message, setMessage] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const navigate = useNavigate();
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -33,12 +40,52 @@ export const Login = () => {
             alert("Login failed. Please check your credentials.");
         }
     }
-
-    const navigate = useNavigate();
-
     const respuestaGoogle = (respuesta) => {
         console.log(respuesta);
     }
+
+	const handleForgotPasswordSubmit = async () => {
+        if (!forgotPasswordEmail) {
+            setForgotPasswordError('Please enter your email address.');
+            return;
+        }
+
+        try {
+            const baseUrl = process.env.BACKEND_URL;
+            const response = await fetch(baseUrl + "/api/requestpasswordrecovery", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: forgotPasswordEmail })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setMessage(data.msg);
+                setForgotPasswordError('');
+
+				// Cerrar el modal después de un retraso para permitir que el mensaje sea visible
+                setTimeout(() => {
+                    const modalElement = document.getElementById('exampleModal');
+                    const modalBootstrap = window.bootstrap.Modal.getInstance(modalElement);
+                    modalBootstrap.hide();
+                    setForgotPasswordEmail(''); // Clear the input field
+                }, 2000); // 2 seconds delay para recibir el mensaje del back "revise su email para el cambio"
+
+            } else {
+                setForgotPasswordError(data.msg || 'An error occurred');
+                setMessage('');
+            }
+        } catch (err) {
+            setForgotPasswordError('An error occurred');
+            setMessage('');
+        }finally {
+            setIsSubmitting(false); 
+        }
+    }
+
+	
 
 	return (
 		<div className="container container-login">
@@ -76,9 +123,9 @@ export const Login = () => {
 						/>
 					</div>
 					<div className="forgot-password">
-						<Link className="link-opacity-50-hover1 not-a-member" to="/forgot-password">
-							Forgot your password?
-						</Link>
+						<button type="button" className="btn btn-link-opacity-50-hover not-a-member" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
+                            Forgot your password?
+                        </button>
 					</div>
 
 					<div className="btn-container-login">
@@ -99,6 +146,38 @@ export const Login = () => {
 					</div>
 				</form>
 			</div>
+			{/* Modal */}
+            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5 login-text " id="exampleModalLabel">Reset Your Password</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <form onSubmit={(e) => { e.preventDefault(); handleForgotPasswordSubmit(); }}>
+                                <div className="mb-3 login-form-detail">
+                                    <label htmlFor="email" className="form-label"></label>
+                                    <input
+                                        type="email"
+                                        className="form-control1"
+                                        id="email"
+                                        value={forgotPasswordEmail}
+                                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                                        placeholder="Email"
+                                    />
+                                </div>
+                                {forgotPasswordError && <div className="text-danger mt-2">{forgotPasswordError}</div>}
+                                {message && <div className="text-success mt-2">{message}</div>}
+                            </form>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-login btn-primary" onClick={handleForgotPasswordSubmit}>Send</button>
+							<button type="button" className="btn btn-login btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 			<div className="login-img">
 				<div className="login-img-login">
 					<svg width="873" height="707" viewBox="0 0 873 707" fill="none" xmlns="http://www.w3.org/2000/svg">

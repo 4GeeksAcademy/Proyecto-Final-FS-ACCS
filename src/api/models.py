@@ -5,7 +5,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(80), unique=False, nullable=False)
+    password = db.Column(db.String(200), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     avatar_path = db.Column(db.String(255))  # Almacenar la ruta de la imagen
     is_admin = db.Column(db.Boolean(), unique=False, nullable=False)
@@ -140,3 +140,7 @@ class Blog_news(db.Model):
             "type": "news" 
             # do not serialize the password, its a security breach
         }                       
+
+class TokenBlockedList(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(100),nullable=False)

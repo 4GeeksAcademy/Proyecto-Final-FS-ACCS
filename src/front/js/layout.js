@@ -25,6 +25,7 @@ import injectContext from "./store/appContext";
 
 import { Gestor_perfil } from "./pages/gestor_perfil.js";
 import { Reset_password } from "./pages/reset_password.js";
+import { Change_password } from "./pages/change_password.js";
 import { Gestor_bebes } from "./pages/gestor_bebes.js";
 import { Add_baby } from "./pages/add_baby";
 
@@ -48,6 +49,7 @@ const Layout = () => {
                         <Route element={<Login />} path="/login" />
                         <Route element={<Register />} path="/register" />
                         <Route element={<Reset_password />} path="/reset_password" />
+                        <Route element={<Change_password />} path="/change_password" />
                         {/* Bebé */}
                         <Route element={<Gestor_perfil />} path="/gestor_perfil" />
                         <Route element={<Gestor_bebe />} path="/gestor_bebe/:id" />

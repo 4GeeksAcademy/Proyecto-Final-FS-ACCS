@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db
+from api.models import db, TokenBlockedList
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
@@ -17,12 +17,34 @@ from flask_jwt_extended import JWTManager
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
+
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 
 
 jwt = JWTManager(app)
+
+
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+
+    #1ra condicion: el token es valido
+    is_password = jwt_payload["type"]=="password" and request.path != "/api/changepassword"
+
+    #2da condicion: el token es valido
+    jti = jwt_payload["jti"]
+    token = TokenBlockedList.query.filter_by(jti=jti).first()
+    is_blocked = token is not None
+
+    print (is_password)
+    print (is_blocked)
+
+    if jwt_payload["type"] == "password":
+        return is_blocked and not is_password
+    else:
+        return is_blocked
+    
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:

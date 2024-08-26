@@ -28,7 +28,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                 password:"",
             },
             babies: [], // Agregado para almacenar la lista de bebés
-            selectedBabyId: null // Para seleccionar un bebé específico
+            selectedBabyId: null, // Para seleccionar un bebé específico
+            token:null
 		},
 		actions: {
 			// Use getActions to call a function within a fuction

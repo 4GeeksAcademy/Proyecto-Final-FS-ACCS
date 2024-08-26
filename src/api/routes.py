@@ -2,16 +2,18 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Baby, Report, Blog_recipe, Blog_news
+from api.models import db, User, Baby, Report, Blog_recipe, Blog_news, TokenBlockedList
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token,get_jwt, get_jwt_identity, jwt_required
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 import os
 #para encriptar la password:
-from flask_bcrypt import Bcrypt
+from flask_bcrypt import Bcrypt, check_password_hash,generate_password_hash
+import requests
+import json
 
 
 
@@ -38,16 +40,20 @@ def handle_hello():
 #[POST] Login
 @api.route('/login' ,methods=["POST"])
 def login():
-    email = request.json.get('email',None)
-    password = request.json.get('password', None)
-    user = User.query.filter_by (email=email).first()
-    if user:
-        password_checked= bcrypt.check_password_hash(user.password,password)
-        if password_checked:
-            access_token = create_access_token(identity= user.id, additional_claims={"type":"access"})
-            return jsonify({'success' : True, 'user':user.serialize(), 'token' :access_token }), 200
-        return jsonify({'success' : False, 'msg':'Usuario o contraseña no válidos'}), 400
-    return jsonify({'success' : False,  'msg' : 'El correo electrónico no existe'}), 404
+        try:
+
+            email = request.json.get('email',None)
+            password = request.json.get('password', None)
+            user = User.query.filter_by (email=email).first()
+            if user:
+                password_checked= bcrypt.check_password_hash(user.password,password)
+                if password_checked:
+                    access_token = create_access_token(identity= user.id, additional_claims={"type":"access"})
+                    return jsonify({'success' : True, 'user':user.serialize(), 'token' :access_token }), 200
+                return jsonify({'success' : False, 'msg':'Usuario o contraseña no válidos'}), 400
+            return jsonify({'success' : False,  'msg' : 'El correo electrónico no existe'}), 404
+        except Exception as e:
+            return jsonify({"msg": str(e)}), 500
 
 
 #[POST] Signup
@@ -542,62 +548,115 @@ def user_info():
     else:
         return jsonify({'success': False, 'msg': 'Usuario no encontrado'}), 404
 
-# Ruta para restablecer la contraseña
-@api.route('/reset_password', methods=['POST'])
-def reset_password():
-    try:
-        data = request.json
-        email = data.get('email')
-        new_password = data.get('password')
-        # Validación de datos
-        if not email or not new_password:
-            return jsonify({"success": False, "message": "Email and new password are required."}), 400
-        # Buscar el usuario por email
-        user = User.query.filter_by(email=email).first()
-        if user is None:
-            return jsonify({"success": False, "message": "User not found."}), 404
 
-        # Hash de la nueva contraseña
-        #hashed_password = generate_password_hash(new_password)
+# Ruta para cambio de contraseña con un user autenticado
+@api.route("/changepassword", methods=['PATCH'])
+@jwt_required()
+def user_change_password():
+    user_id=get_jwt_identity() #con este user_id tomamos los datos del user
+    user=User.query.filter_by(id=user_id).first()
+    #si el user no encontrado
+    if user is None:
+        return jsonify({"msg":"User no encontrado"}), 404
 
-        # Actualizar la contraseña del usuario
-        #user.password = hashed_password
-        user.password = new_password
-        db.session.commit()
+    body=request.get_json()
+    new_password=bcrypt.generate_password_hash(body["password"]).decode('utf-8')
+    #nueva password encriptada, actualizamos la db
+    user.password=new_password
+    db.session.add(user)
+    if get_jwt()["type"]=="password":
+        jti=get_jwt()["jti"]
+        token_blocked= TokenBlockedList(jti=jti)
+        db.session.flush()
+        db.session.add(token_blocked)
+    db.session.commit()
+    return jsonify ({"msg":"clave actualizada"})
 
-         # Enviar correo electrónico de confirmación
-        #  msg = Message(subject="Password Reset Confirmation",
-        #                sender="sandbox.smtp.mailtrap.io",
-        #                recipients=[email],
-        #                body=f"Hi {user.username}, your password has been successfully reset.")
-        
-         #mail.send(msg)
-
-        return jsonify({"success": True, "message": "Password updated successfully."}), 200
-
-    except Exception as e:
-        print(e)
-        return jsonify({"success": False, "message": "An error occurred."}), 500
+#solicitar recuperación de contraseña
+@api.route("/requestpasswordrecovery", methods=['POST'])
+def request_password_recovery():
+    #buscamos el correo del user
+    email=request.get_json()['email']
+    user=User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"msg":"User no encontrado"}), 404
     
-#ruta /api/babies/user/:userId y devuelve la lista de bebés del usuario especificado
-@api.route('/babies/user/<int:user_id>', methods=['GET'])
-def get_babies_by_user(user_id):
+    #generamos una pequeña sesion del user
+    password_token=create_access_token(identity=user.id, additional_claims={"type":"password"})
+    url=os.getenv("FRONTENT_URL")
+    url=url+"/reset_password?token="+password_token
+    #aqui debe enviarse el token en una url para su uso en el frontend
+    ####ENVIO DE CORREO
+    # service_id= os.getenv("MAIL_SERVICE_ID")
+    # template_id= os.getenv("MAIL_TEMPLATE_ID")
+    # user_id=os.getenv("MAIL_USER_ID")
+    # send_mail_url=os.getenv("MAIL_SEND_URL")
+  
+    # Datos a enviar
+    data = {
+        'service_id': os.getenv('MAIL_SERVICE_ID'),
+        'template_id': os.getenv('MAIL_TEMPLATE_ID'),
+        'user_id': os.getenv('MAIL_USER_ID'),
+        'template_params': {'url': url}
+    }
+    print(data)
+
+    # Encabezados
+    headers = {'Content-Type': 'application/json' }
+    send_mail_url = os.getenv('MAIL_SEND_URL')
+
+    # Realizar la solicitud POST
+    response = requests.post(send_mail_url, data=json.dumps(data), headers=headers)
+    
+    print(response.text)
+    print(url)
+    if response.status_code == 200:
+        return jsonify({"msg": "Revise su email para el cambio de contraseña"})
+    else:
+        return jsonify({"msg": "Ocurrio un error con el envio de correo"}), 400
+
+@api.route("/changepassworduser", methods=['PATCH'])
+@jwt_required()
+def change_password():
     try:
-        # Buscar el usuario por ID
-        user = User.query.get(user_id)
-        if not user:
+        user_id = get_jwt_identity()  # Obtener ID del usuario autenticado
+        user = User.query.filter_by(id=user_id).first()
+
+        if user is None:
             return jsonify({"msg": "User not found"}), 404
 
-        # Obtener todos los bebés asociados con el usuario
-        babies = Baby.query.filter_by(user_id=user_id).all()
-        
-        # Serializar los datos de los bebés
-        serialized_babies = [baby.serialize() for baby in babies]
+        body = request.get_json()
 
-        return jsonify({"babies": serialized_babies}), 200
+        # Verificar que la contraseña actual y la nueva estén presentes
+        current_password = body['current_password']
+        new_password = body['new_password']
+
+        if 'current_password' not in body or 'new_password' not in body:
+            return jsonify({"msg": "Current password and new password are required"}), 400
+
+
+        # Verificar la contraseña actual
+        if not bcrypt.check_password_hash(user.password, current_password):
+            return jsonify({"msg": "Current password is incorrect"}), 401
+
+        # Validar la nueva contraseña
+        if len(new_password) < 6:
+            return jsonify({"msg": "New password must be at least 6 characters long"}), 400
+
+        # Hashear y actualizar la nueva contraseña
+        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        user.password = hashed_password
+
+        if get_jwt()["type"] == "password":
+            jti = get_jwt()["jti"]
+            token_blocked = TokenBlockedList(jti=jti)
+            db.session.add(token_blocked)
+
+        db.session.commit()
+
+        return jsonify({"msg": "Password updated successfully"}), 200
     except Exception as e:
-        print(f"Error fetching babies: {e}")
-        return jsonify({"msg": "An error occurred"}), 500
+        return jsonify({"msg": str(e)}), 500
 
 #agregar un bebé a un usuario
 @api.route('/babies/user/<int:user_id>', methods=['POST'])

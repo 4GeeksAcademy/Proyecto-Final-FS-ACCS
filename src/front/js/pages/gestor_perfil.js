@@ -53,7 +53,7 @@ export const Gestor_perfil = () => {
                     <input type="text" name="password" placeholder="password" value={user.password} style={{ backgroundColor: '#B4E49D', borderRadius: '10px', border:'none' }} readOnly />
                 </div>
                 <div className="mb-3">
-                    <Link to="/reset_password" style={{ color: '#075E81', textDecoration: 'underline' }}>Want to reset your password?</Link>
+                    <Link to="/change_password" style={{ color: '#075E81', textDecoration: 'underline' }}>Want to reset your password?</Link>
                 </div> 
                 <div className="d-flex flex-column justify-content-center mt-3" style={{ borderRadius: '10px', padding: '10px', border: '2px solid #B4E49D' }}>
                         <label className="tituloApp">Babies</label>
