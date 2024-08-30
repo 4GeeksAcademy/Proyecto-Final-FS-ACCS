@@ -20,6 +20,7 @@ import { ViewReport } from "./pages/view_report.jsx";
 import { EditReport } from "./pages/edit_report.jsx";
 import { ViewReports } from "./pages/view_all_reports.jsx";
 import { AverageReportPage } from "./pages/average_report.jsx";
+import { NotFound } from "./pages/404.jsx";
 
 import injectContext from "./store/appContext";
 
@@ -47,9 +48,9 @@ const Layout = () => {
                     <Route path="/register" element={<Register />} />
                     <Route path="/reset_password" element={<Reset_password />} />
                     {/* Bebé */}
-                    <Route path="/gestor_perfil" element={<Gestor_perfil />} />
-                    <Route path="/gestor_bebe/:id" element={<Gestor_bebe />} />
-                    <Route path="/gestor_bebes" element={<Gestor_bebes />} />
+                    <Route path="/profile" element={<Gestor_perfil />} />
+                    <Route path="/manage_baby/:id" element={<Gestor_bebe />} />
+                    <Route path="/manage_babies" element={<Gestor_bebes />} />
                     <Route path="/add_baby" element={<Add_baby />} />
                     {/* Report */}
                     <Route path="/dashboard" element={<AddReport />} />
@@ -65,7 +66,7 @@ const Layout = () => {
                     <Route path="/blog/:type/:id" element={<BlogDetail />} />
                     <Route path="/edit_blog/:type/:id" element={<EditBlog />} />
                     {/* 404 */}
-                    <Route path="*" element={<h1>Not found!</h1>} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
                 {showFooter && <Footer />}
             </ScrollToTop>

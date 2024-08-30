@@ -270,14 +270,14 @@ export const AddReport = () => {
                                 <button
                                     onClick={() => navigate(`/average-report/${selectedBabyId}`)}
                                     className="ar-btn ar-btn-secondary"
-                                    disabled={!selectedBabyId} // Deshabilitar si no hay bebé seleccionado
+                                    disabled={!selectedBabyId} 
                                 >
                                     <FontAwesomeIcon icon={faChartBar} /> Report
                                 </button>
                                 <button
                                     onClick={() => navigate(`/baby/${selectedBabyId}/reports`)}
                                     className="ar-btn ar-btn-secondary"
-                                    disabled={!selectedBabyId} // Deshabilitar si no hay bebé seleccionado
+                                    disabled={!selectedBabyId} 
                                 >
                                     <FontAwesomeIcon icon={faCalendar} /> View All
                                 </button>
