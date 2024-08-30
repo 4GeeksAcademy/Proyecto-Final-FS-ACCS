@@ -10,7 +10,10 @@ export const Gestor_perfil = () => {
     const { actions, store } = useContext(Context);
     const [loading, setLoading] = useState(true);
 
-    const { user, babies } = store;
+    const { userData, babies } = store;
+
+    const [status, setStatus]=useState("")
+
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -30,31 +33,49 @@ export const Gestor_perfil = () => {
         return <div>Loading...</div>;
     }
 
-    if (!user) {
+    if (!userData) {
         return <div>No user data found</div>;
     }
+
+    async function submitForm(e){
+		e.preventDefault()
+		let formdata = new FormData(e.target)
+		setStatus("Cargando...")
+		await actions.uploadProfilePicture(formdata)
+		setStatus("Picture cargada")
+	}
+
 
 
     return (
         <div className="container container-gestor-perfil" >
             <div className="gestor-perfil-img">
-                <img src={user1} className="gestor-perfil-img-perfil" alt="IMG_user" />
-            </div>
+                <img src={store.profilePicture} className="gestor-perfil-img-perfil" alt="IMG_user" />
+            </div> 
             <div className="container-gestor-perfil-right">
                 <div className="form-gestor-perfil">
                     <label>Username</label>
-                    <input type="text" name="username" placeholder="Username" value={user.username} readOnly />
+                    <input type="text" name="username" placeholder="Username" value={userData.username} readOnly />
                 </div>
                 <div className="form-gestor-perfil">
                     <label>Email</label>
-                    <input type="text" name="email" placeholder="email" value={user.email} readOnly />
+                    <input type="text" name="email" placeholder="email" value={userData.email} readOnly />
                 </div>
                 <div className="form-gestor-perfil">
                     <label>Password</label>
-                    <input type="text" name="password" placeholder="password" value={user.password} readOnly />
+                    <input type="text" name="password" placeholder="password" value={userData.password} readOnly />
                 </div>
                 <div className="form-gestor-perfil-reset">
                     <Link to="/change_password" >Want to reset your password?</Link>
+                </div>
+                <div className="form-gestor-perfil">
+                    <form onSubmit={submitForm}>
+                        <div className="d-flex">
+                            <label for="formFile" className="form-label">Foto de perfil</label>
+                            <input className="form-control" type="file" id="formFile"name="profilePics"/>
+                            <button type="submit" className="ar-btn gestor-perfil-edit mt-0" style={{width:"50%"}}>Load</button>
+                        </div>
+                    </form>
                 </div>
                 <div>
                     <button type="submit" className="ar-btn gestor-perfil-edit">

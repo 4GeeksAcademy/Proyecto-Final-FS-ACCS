@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-
+#from firebase_admin import storage
+from datetime import timedelta
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -7,7 +8,7 @@ class User(db.Model):
     username = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(200), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    avatar_path = db.Column(db.String(255))  # Almacenar la ruta de la imagen
+    avatar_path = db.Column(db.String(300))  # Almacenar la ruta de la imagen
     is_admin = db.Column(db.Boolean(), unique=False, nullable=False)
 
     # Relación uno-a-muchos con Baby: Un usuario puede tener múltiples bebés
@@ -16,11 +17,22 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.email}>'
 
+    # def getProfilePicture(self):
+    #     output=""
+    #     #SI EL USER TIENE IMAGEN EL CAMPO NO NULO:
+    #     if self.avatar_path is not None:
+    #             bucket=storage.bucket()
+    #             resource=bucket.blob(self.avatar_path)
+    #             picture_url=resource.generate_signed_url(version="v4", expiration=timedelta(minutes=15),method="GET")
+    #             output=picture_url
+    #     return output
+    
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
             "username": self.username,
+            "profilePicture":"",
             # No serializar la contraseña por razones de seguridad
         }
 

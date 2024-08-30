@@ -29,14 +29,29 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             babies: [], // Agregado para almacenar la lista de bebés
             selectedBabyId: null, // Para seleccionar un bebé específico
-            token:null
+            token:null,
+            profilePicture:""
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-            //Accion para obtener el perfil del usuario por EMAIL
+            uploadProfilePicture: async(formData) =>{
+                let {token}=getStore()
+                let resp= await fetch(process.env.BACKEND_URL + "api/profilepic", {
+                    method: "PUT",
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }, 
+                    body: formData
+                })
+                if (!resp.ok) return false
+                let data= await resp.json()
+                setStore ({profilePicture: data.profilePicture})
+
+            },
+            //Accion para obtener el perfil del usuario
 			getUserInfo: async () => {
 				try {
                     const store = getStore();
@@ -104,14 +119,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             // Obtener datos de un bebé específico
 			fetchBabyData: async (babyId) => {
+                const store = getStore();
+                const token = store.token;
 				try {
-                    console.log(`Fetching data for baby with ID: ${babyId}`);
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/one_baby/${babyId}`);
+                    const response = await fetch(process.env.BACKEND_URL + `/api/one_baby/${babyId}`,{
+                        method: "GET",
+                        headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${token}`
+                         }
+                    });
                     const data = await response.json();
             
-                    if (response.ok && data && data.bebe) {
-                        console.log("Fetched baby data:", data.bebe);
-                        setStore({ babyData: data.bebe, selectedBabyId: babyId });
+                    if (response.ok && data && data.data) {
+                        console.log("Fetched baby data:", data.data);
+                        setStore({ babyData: data.data, selectedBabyId: babyId });
                     } else {
                         console.error("Failed to fetch baby data or data is missing:", data);
                     }
@@ -122,11 +144,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			// Actualizar los datos del bebé
             updateBabyData: async (updatedData) => {
+                const store = getStore();
+                const token = store.token;
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}api/edit_baby/${updatedData.id}`, {
+                    const response = await fetch(process.env.BACKEND_URL + `/api/edit_baby/${updatedData.id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify(updatedData),
                     });
@@ -277,16 +302,16 @@ const getState = ({ getStore, getActions, setStore }) => {
             setUser: (user) => {
                 setStore(prevStore => ({ ...prevStore, user }));
             },
-
             //Accion para crear un nuevo bebe
             createBaby: async (babyData) => {
                 try {
                     const store = getStore();
                     const userId = store.userData.id || 1; // Usa el userId del store, o 1 por defecto
-                    const response = await fetch(process.env.BACKEND_URL + `/api/babies/user/${userId}`, {
+                    const response = await fetch(process.env.BACKEND_URL + `/api/babies/user`, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${store.token}`
                         },
                         body: JSON.stringify(babyData)
                     });
@@ -307,6 +332,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     return false;
                 }
             },
+
             //Accion LOGOUT
             logout: () => {
 				localStorage.removeItem('token')
