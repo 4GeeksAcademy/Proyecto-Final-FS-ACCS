@@ -42,9 +42,10 @@ export const Footer = () => (
 			<ul>
 				<li><a href="/blog">Blog</a></li>
 				<li><a href="/dashboard">Dashboard</a></li>
-				<li><a href="/gestor_perfil">Profile Manager</a></li>
-				<li><a href="/gestor_bebes">Baby Manager</a></li>
+				<li><a href="/profile">Profile Manager</a></li>
+				<li><a href="/manage_babies">Baby Manager</a></li>
 				<li><a href="/login">Log In</a></li>
+				<li><a href="/privacy">Privacy</a></li>
 			</ul>
 		</div>
 	</footer>

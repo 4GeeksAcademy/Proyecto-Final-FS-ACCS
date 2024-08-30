@@ -21,6 +21,7 @@ import { EditReport } from "./pages/edit_report.jsx";
 import { ViewReports } from "./pages/view_all_reports.jsx";
 import { AverageReportPage } from "./pages/average_report.jsx";
 import { NotFound } from "./pages/404.jsx";
+import { Privacy } from "./pages/privacy.jsx";
 
 import injectContext from "./store/appContext";
 
@@ -67,6 +68,8 @@ const Layout = () => {
                     <Route path="/edit_blog/:type/:id" element={<EditBlog />} />
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />
+
+                    <Route path="/privacy" element={<Privacy />} />
                 </Routes>
                 {showFooter && <Footer />}
             </ScrollToTop>
