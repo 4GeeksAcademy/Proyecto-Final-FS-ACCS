@@ -1,0 +1,28 @@
+.privacy {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #075E81;
+    padding: 100px;
+    padding-left: 200px;
+    padding-right: 200px;
+}
+
+.privacy h1 {
+    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.privacy h2 {
+    font-weight: 500;
+    font-family: "Poppins", sans-serif;
+    margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+    .privacy {
+        padding: 30px;
+    }
+}
