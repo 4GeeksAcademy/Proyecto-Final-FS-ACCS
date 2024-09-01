@@ -15,8 +15,8 @@ export const Gestor_perfil = () => {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                await actions.getUserInfo(); // Cargar datos del usuario
-                await actions.getBabiesByUser(); // Cargar bebés del usuario
+                await actions.getUserInfo(); 
+                await actions.getBabiesByUser(); 
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching user profile in useEffect:", error);
@@ -54,7 +54,7 @@ export const Gestor_perfil = () => {
                     <input type="text" name="password" placeholder="password" value={user.password} readOnly />
                 </div>
                 <div className="form-gestor-perfil-reset">
-                    <Link to="/change_password" >Want to reset your password?</Link>
+                    <Link to="/reset_password" >Want to reset your password?</Link>
                 </div>
                 <div>
                     <button type="submit" className="ar-btn gestor-perfil-edit">

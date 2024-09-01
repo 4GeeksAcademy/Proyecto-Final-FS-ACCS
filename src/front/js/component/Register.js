@@ -14,28 +14,29 @@ export const Register = () => {
         repeatPassword: '',
     });
 
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
-  const navigate = useNavigate();
-
-
-	const [showPassword, setShowPassword] = useState(false);
-	const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-
-
-
-	const togglePasswordVisibility = (type) => {
-		if (type === 'password') {
-			setShowPassword(!showPassword);
-		} else if (type === 'repeatPassword') {
-			setShowRepeatPassword(!showRepeatPassword);
-		}
-	}
-
-
+    const togglePasswordVisibility = (type) => {
+        if (type === 'password') {
+            setShowPassword(!showPassword);
+        } else if (type === 'repeatPassword') {
+            setShowRepeatPassword(!showRepeatPassword);
+        }
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+    }
+
+    const showAlert = (message, type) => {
+        if (type === "success") {
+            alert(message);
+        } else if (type === "error") {
+            alert(`Error: ${message}`);
+        }
     }
 
     const handleSubmit = async (e) => {
@@ -44,12 +45,13 @@ export const Register = () => {
 
         if (name === "" || username === "" || email === "" || password === "" || repeatPassword === "") {
             setError(true);
+            showAlert("Please fill out all fields", "error");
             return;
         }
 
         if (password !== repeatPassword) {
             setError(true);
-            alert("Passwords do not match!");
+            showAlert("Passwords do not match!", "error");
             return;
         }
 
@@ -57,22 +59,20 @@ export const Register = () => {
         try {
             const data = await actions.register(formData);
             if (data && data.token) {
-                // Actualiza el estado global con el token y el usuario
                 actions.setToken(data.token);
                 actions.setUser(data.user);
-                // Redirige al dashboard o la página deseada
+                showAlert("Registration successful!", "success");
                 navigate("/dashboard");
             } else {
-                // Manejo de errores si el registro falla
-                alert(data.msg || "Registration failed!");
+                showAlert(data.msg || "Sign up failed!", "error");
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert("An error occurred during registration. Please try again.");
+            showAlert("An error occurred during registration. Please try again.", "error");
         }
     };
 
-	return (
+    return (
 		<div className="container-register">
 			<div className="register-img">
 				<div className="register-img-register">
@@ -212,7 +212,7 @@ export const Register = () => {
 					<div className="register-form-detail position-relative">
 						<label htmlFor="password" className="form-label"></label>
 						<input
-							type={showPassword ? "text" : "password"} // Cambia el tipo basado en el estado
+							type={showPassword ? "text" : "password"} 
 							className="form-control"
 							id="password"
 							name="password"
@@ -222,7 +222,7 @@ export const Register = () => {
 						/>
 						<i
 							className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"} position-absolute`}
-							style={{ right: '25px', top: '68%', transform: 'translateY(-50%)', cursor: 'pointer' }}
+							style={{ right: '25px', top: '68%', transform: 'translateY(-50%)', cursor: 'pointer', color:'#075E81' }}
 							onClick={() => togglePasswordVisibility('password')}
 						></i>
 					</div>
@@ -230,7 +230,7 @@ export const Register = () => {
 					<div className="register-form-detail position-relative">
 						<label htmlFor="repeatPassword" className="form-label"></label>
 						<input
-							type={showRepeatPassword ? "text" : "password"} // Cambia el tipo basado en el estado
+							type={showRepeatPassword ? "text" : "password"} 
 							className="form-control"
 							id="repeatPassword"
 							name="repeatPassword"
@@ -240,15 +240,15 @@ export const Register = () => {
 						/>
 						<i
 							className={`fa-solid ${showRepeatPassword ? "fa-eye" : "fa-eye-slash"} position-absolute`}
-							style={{ right: '25px', top: '68%', transform: 'translateY(-50%)', cursor: 'pointer' }}
+							style={{ right: '25px', top: '68%', transform: 'translateY(-50%)', cursor: 'pointer', color:'#075E81' }}
 							onClick={() => togglePasswordVisibility('repeatPassword')}
 						></i>
 					</div>
 
 
 
-					<button type="submit" className="btn-register btn-primary btn-register mt-6">Submit</button>
-					{error && <p className="text-danger">Todos los campos son obligatorios y las contraseñas deben coincidir</p>}
+					<button type="submit" className="btn-register btn-register mt-6">Submit</button>
+					{error && <p className="text-danger">All fields are required, and the passwords must match.</p>}
 				</form>
 				<p>
 					<Link className="link-opacity-50-hover not-a-member" to="/Login">

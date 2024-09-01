@@ -4,7 +4,6 @@ import GoogleLogin from 'react-google-login';
 import "../../styles/login.css";
 import { Context } from "../store/appContext";
 
-
 export const Login = () => {
 	const { store, actions } = useContext(Context);
 	const [error, setError] = useState(false);
@@ -16,30 +15,40 @@ export const Login = () => {
 	const [forgotPasswordError, setForgotPasswordError] = useState('');
 	const [message, setMessage] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [showPassword, setShowPassword] = useState(false); // Nuevo estado para controlar la visibilidad de la contraseña
+	const [showPassword, setShowPassword] = useState(false); 
+
+	const navigate = useNavigate();
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData({ ...formData, [name]: value });
 	}
 
+	const showAlert = (message, type) => {
+		if (type === "success") {
+			alert(message);
+		} else if (type === "error") {
+			alert(`Error: ${message}`);
+		}
+	}
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		if (formData.email === "" || formData.password === "") {
 			setError(true);
+			showAlert("Please fill out all fields", "error");
 			return;
 		}
 		setError(false);
 
 		const success = await actions.login(formData);
 		if (success) {
+			showAlert("Login successful!", "success");
 			navigate("/dashboard");
 		} else {
-			alert("Login failed. Please check your credentials.");
+			showAlert("Login failed. Please check your credentials.", "error");
 		}
 	}
-
-	const navigate = useNavigate();
 
 	const respuestaGoogle = (respuesta) => {
 		console.log(respuesta);
@@ -48,6 +57,7 @@ export const Login = () => {
 	const handleForgotPasswordSubmit = async () => {
 		if (!forgotPasswordEmail) {
 			setForgotPasswordError('Please enter your email address.');
+			showAlert('Please enter your email address.', "error");
 			return;
 		}
 
@@ -65,6 +75,7 @@ export const Login = () => {
 			if (response.ok) {
 				setMessage(data.msg);
 				setForgotPasswordError('');
+				showAlert("Password recovery email sent successfully!", "success");
 
 				setTimeout(() => {
 					const modalElement = document.getElementById('exampleModal');
@@ -76,16 +87,17 @@ export const Login = () => {
 			} else {
 				setForgotPasswordError(data.msg || 'An error occurred');
 				setMessage('');
+				showAlert(data.msg || 'An error occurred', "error");
 			}
 		} catch (err) {
 			setForgotPasswordError('An error occurred');
 			setMessage('');
+			showAlert('An error occurred while sending the password recovery email.', "error");
 		} finally {
 			setIsSubmitting(false);
 		}
 	}
 
-	// Maneja el clic en el ícono del ojo
 	const togglePasswordVisibility = () => {
 		setShowPassword(!showPassword);
 	}
@@ -127,7 +139,7 @@ export const Login = () => {
 							/>
 							<i
 								className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"} position-absolute`}
-								style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}
+								style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color:'#075E81' }}
 								onClick={togglePasswordVisibility} 
 							></i>
 						</div>
@@ -139,7 +151,7 @@ export const Login = () => {
 					</div>
 
 					<div className="btn-container-login">
-						<button type="submit" className="btn btn-login btn-primary">Login</button>
+						<button type="submit" className="btn btn-login">Login</button>
 						<div className="login-text"><p>or</p></div>
 						<GoogleLogin className="googlebutton"
 							clientId="953402330168-infsbkt3uifhc81i1ohvn4oiq8dl596t.apps.googleusercontent.com"
@@ -148,7 +160,7 @@ export const Login = () => {
 							cookiePolicy={'single_host_origin'}
 						/>
 					</div>
-					{error && <p className="text-danger">Todos los campos son obligatorios</p>}
+					{error && <p className="text-danger">All fields are required</p>}
 					<div>
 						<Link className="link-opacity-50-hover not-a-member" to="/register">
 							Not a member? <span>Sign In</span>
@@ -189,11 +201,6 @@ export const Login = () => {
 					</div>
 				</div>
 			</div>
-		
-
-
-
-
 
 			<div className="login-img">
 				<div className="login-img-login">

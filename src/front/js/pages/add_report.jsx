@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faPlus, faChartBar, faMoon, faUtensils, faBabyCarriage, faDroplet, faPills, faSchool, faBaby } from '@fortawesome/free-solid-svg-icons';
-import { Context } from "../store/appContext"; // Importa el contexto para verificar autenticación
+import { Context } from "../store/appContext"; 
 import "../../styles/add_report.css";
 
 
@@ -123,6 +123,8 @@ export const AddReport = () => {
             console.log('Report added successfully:', result);
             setError("");
 
+            alert("Report created successfully!");
+
         } catch (error) {
             setError('Network error: ' + error.message);
         }
@@ -153,7 +155,7 @@ export const AddReport = () => {
                                     }}
                                     required
                                 >
-                                    <option value="">Select a baby</option>
+                                    <option value="">Select Baby</option>
                                     {babies.map(baby => (
                                         <option key={baby.id} value={baby.name}>{baby.name}</option>
                                     ))}
@@ -179,6 +181,7 @@ export const AddReport = () => {
                                     step="0.1"
                                     value={bedtime}
                                     onChange={(e) => setBedtime(e.target.value)}
+                                    placeholder="Hours"
                                     required
                                 />
                             </div>
@@ -189,6 +192,7 @@ export const AddReport = () => {
                                     type="number"
                                     value={meals}
                                     onChange={(e) => setMeals(e.target.value)}
+                                    placeholder="Meals"
                                     required
                                 />
                             </div>
@@ -210,6 +214,7 @@ export const AddReport = () => {
                                     type="number"
                                     value={diapers}
                                     onChange={(e) => setDiapers(e.target.value)}
+                                    placeholder="Diapers"
                                     required
                                 />
                             </div>
@@ -220,6 +225,7 @@ export const AddReport = () => {
                                     type="number"
                                     value={walks}
                                     onChange={(e) => setWalks(e.target.value)}
+                                    placeholder="Walks"
                                     required
                                 />
                             </div>
@@ -231,6 +237,7 @@ export const AddReport = () => {
                                     step="0.1"
                                     value={water}
                                     onChange={(e) => setWater(e.target.value)}
+                                    placeholder="Liters"
                                     required
                                 />
                             </div>

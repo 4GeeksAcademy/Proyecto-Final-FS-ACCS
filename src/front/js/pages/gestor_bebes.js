@@ -7,16 +7,15 @@ import "../../styles/gestor_bebes.css";
 export const Gestor_bebes = () => {
     const { actions, store } = useContext(Context);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate(); // Hook para redirección
+    const navigate = useNavigate(); 
 
     const { babies } = store;
 
     useEffect(() => {
         const fetchBabies = async () => {
             try {
-                // Verifica la autenticación antes de obtener los datos
                 if (!store.token) {
-                    navigate('/login'); // Redirige al login si no hay token
+                    navigate('/login'); 
                 } else {
                     await actions.getBabiesByUser();
                     setLoading(false);
@@ -44,7 +43,7 @@ export const Gestor_bebes = () => {
                                 alt={baby.name}
                             />
                             <span>{baby.name}</span>
-                            <Link to={`/gestor_bebe/${baby.id}`}>
+                            <Link to={`/manage_baby/${baby.id}`}>
                                 <div className="btn-edit-baby-gestor-bebes">Edit Baby</div>
                             </Link>
                         </li>

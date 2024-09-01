@@ -83,6 +83,12 @@
     text-align: center;
 }
 
+.btn-login:hover {
+    background-color: #075E81;
+    color: #FBEE84;
+    border-color: #075E81;
+}
+
 .not-a-member {
     color: #075E81;
     font-family: "Poppins", sans-serif;
