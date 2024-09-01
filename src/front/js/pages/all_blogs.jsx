@@ -48,14 +48,14 @@ export const All_Blogs = props => {
                     <div key={blog.id} className="card all-blogs-card">
                         <Link to={`/blog/${blog.type}/${blog.id}`} className="stretched-link">
                             <img src={blog.img_header} className="card-img-top" alt={blog.title} />
-                            <div className="card-img-overlay d-flex align-items-end p-0">
-                                <h5 className="card-title all-blogs-title text-white p-3 m-0">
+                            <div className="card-img-overlay">
+                                <h5 className="card-title all-blogs-title">
                                     {blog.title}
                                 </h5>
                             </div>
                         </Link>
                         {isAdmin && (
-                            <div className="mt-2"> {/* Añade un margen superior para separar el botón de la tarjeta */}
+                            <div className="all-blogs-btn-container mt-3">
                                 <Link to={`/edit_blog/${blog.type}/${blog.id}`} className="btn btn-warning all-blogs-btn">
                                     <FontAwesomeIcon icon={faPencil} /> Edit Blog
                                 </Link>

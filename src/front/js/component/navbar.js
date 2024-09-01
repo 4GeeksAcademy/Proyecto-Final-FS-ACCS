@@ -9,12 +9,11 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     actions.logout();
-    navigate('/login'); // Redirige a la página de login
-  };
-
+    navigate('/login');
+};
   if (!store.token) {
-    // Si no hay token, no renderiza la Navbar
     return null;
   }
 
@@ -31,7 +30,7 @@ export const Navbar = () => {
         </button>
         {/* Icono de perfil visible solo en pantallas grandes */}
         <div className="d-none d-md-flex justify-content-end">
-          <Link to="/gestor_perfil">
+          <Link to="/profile">
             <i className="fa-solid fa-circle-user profile-icon" style={{ fontSize: '30px', color: 'white' }}></i>
           </Link>
         </div>
@@ -53,13 +52,13 @@ export const Navbar = () => {
                 </h1>
                 <ul className="no-bullets">
                   <li><Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>Baby's Diary</Link></li>
-                  <li><Link to="/gestor_bebes" style={{ color: 'inherit', textDecoration: 'none' }}>Manage Babies</Link></li>
+                  <li><Link to="/manage_babies" style={{ color: 'inherit', textDecoration: 'none' }}>Manage Babies</Link></li>
                 </ul>
               </li>
               <li className="nav-item">
                 <h1 className="titulo-navItem" style={{ color: '#B4E49D' }}>Profile</h1>
                 <ul className="no-bullets">
-                  <li><Link to="/gestor_perfil" style={{ color: 'inherit', textDecoration: 'none' }}>See profile</Link></li>
+                  <li><Link to="/profile" style={{ color: 'inherit', textDecoration: 'none' }}>See profile</Link></li>
                   <li>Edit profile</li>
                   <li><button className="btn btn-link" onClick={handleLogout} style={{ color: 'inherit', textDecoration: 'none' }}>Log Out</button></li>
                 </ul>

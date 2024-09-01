@@ -17,7 +17,6 @@ export const ViewReports = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Verifica la autenticación
         if (!store.token) {
             navigate('/login');
             return;
@@ -100,6 +99,9 @@ export const ViewReports = () => {
                 prevReports.map(report => report.id === editReport.id ? editReport : report)
             );
             setEditReport(null);
+
+            alert("Report edited successfully!");
+
         } catch (error) {
             setError(error.message);
         }

@@ -7,7 +7,7 @@ import "../../styles/gestor_bebe.css";
 export const Gestor_bebe = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
-    const navigate = useNavigate(); // Hook para redirección
+    const navigate = useNavigate(); 
 
     const { babyData } = store;
 
@@ -21,11 +21,10 @@ export const Gestor_bebe = () => {
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        // Verifica la autenticación antes de cargar los datos del bebé
         if (!store.token) {
-            navigate('/login'); // Redirige al login si no hay token
+            navigate('/login'); 
         } else if (id) {
-            actions.fetchBabyData(id); // Obtener datos del bebé
+            actions.fetchBabyData(id); 
         }
     }, [id, store.token, navigate]);
 
@@ -45,6 +44,7 @@ export const Gestor_bebe = () => {
         event.preventDefault();
         actions.updateBabyData(editableData);
         setIsEditing(false);
+        alert("Baby edited successfully!");
     };
 
     return (
@@ -60,7 +60,7 @@ export const Gestor_bebe = () => {
             </div>
             <div className="form-gestor-bebe">
                 <label>Name</label>
-                <input type="text" name="name" placeholder="Baby name" value={editableData.name} onChange={handleChange} disabled={!isEditing} className="form-control" />
+                <input type="text" name="name" placeholder="Name" value={editableData.name} onChange={handleChange} disabled={!isEditing} className="form-control" />
             </div>
             <div className="form-gestor-bebe">
                 <label>Gender</label>
@@ -84,7 +84,7 @@ export const Gestor_bebe = () => {
                 <label>Weight</label>
                 <div className="gestor-bebe-input-wrapper">
                     <input type="text" name="weight" placeholder="Weight" value={editableData.weight} onChange={handleChange} disabled={!isEditing} className="form-control" />
-                    <span className="gestor-bebe-unit">gr</span>
+                    <span className="gestor-bebe-unit">kg</span>
                 </div>
             </div>
             <div className="d-flex justify-content-end btn-container-gestor-bebe">
@@ -93,7 +93,7 @@ export const Gestor_bebe = () => {
                 ) : (
                     <button type="button" onClick={() => setIsEditing(true)} className="btn btn-edit-gestor-bebe">Edit</button>
                 )}
-                <Link to="/dashboard">
+                <Link to="/manage_babies">
                     <button type="button" className="btn btn-home-gestor-bebe">➜</button>
                 </Link>
             </div>

@@ -1,9 +1,10 @@
 .container-gestor-bebes {
     width: 75%;
     align-items: center;
-    padding-top: 50px;
     margin: auto;
     min-height: 100vh;
+    padding-top: 100px;
+    padding-bottom: 80px;
 }
 
 .container-gestor-bebes ul {
@@ -106,6 +107,7 @@
     font-size: 22pt;
     text-align: center;
     margin-bottom: 50px;
+    margin-top: 50px;
 }
 
 @media (max-width: 600px) {

@@ -21,7 +21,6 @@ export const Footer = () => (
 						</clipPath>
 					</defs>
 				</svg>
-
 			</div>
 			<div className="footer-catchphrase">
 				Track Every Milestone, Cherish Every Moment.
@@ -30,21 +29,20 @@ export const Footer = () => (
 		<div className="footer-column">
 			<h4>
 				<div className="social-media">
-				<p><FontAwesomeIcon icon={faInstagram} /></p>
-				<p><FontAwesomeIcon icon={faFacebookF} /></p>
-				<p><FontAwesomeIcon icon={faXTwitter} /></p>
+					<p><FontAwesomeIcon icon={faInstagram} /></p>
+					<p><FontAwesomeIcon icon={faFacebookF} /></p>
+					<p><FontAwesomeIcon icon={faXTwitter} /></p>
 				</div>
 			</h4>
 
 		</div>
 		<div className="footer-column">
-			<h4>Pages</h4>
 			<ul>
-				<li><a href="/blog">Blog</a></li>
+				<li><a href="/login">Log In</a></li>
 				<li><a href="/dashboard">Dashboard</a></li>
+				<li><a href="/blog">Blog</a></li>
 				<li><a href="/profile">Profile Manager</a></li>
 				<li><a href="/manage_babies">Baby Manager</a></li>
-				<li><a href="/login">Log In</a></li>
 				<li><a href="/privacy">Privacy</a></li>
 			</ul>
 		</div>

@@ -45,24 +45,27 @@ export const All_News = props => {
 
     return (
         <div className="container all-blogs-container">
-            <h1 className="display-4 mb-4 all-blogs-title">Blog</h1>
+            <h1 className="display-4 mb-4 all-blogs-big-title">Blog</h1>
             <div className="d-flex overflow-auto">
                 {blogs.length > 0 ? (
                     blogs.map(blog => (
-                        <div key={blog.id} className="card me-3 all-blogs-card" style={{ minWidth: '300px', maxWidth: '300px' }}>
-                            <img src={blog.img_header} className="card-img-top" alt={blog.title} style={{ width: '300px', height: '300px', objectFit: 'cover' }} />
+                        <div key={blog.id} className="card all-blogs-card">
+                            <Link to={`/blog/${blog.type}/${blog.id}`} className="stretched-link">
+                                <img src={blog.img_header} className="card-img-top" alt={blog.title} />
+                                <div className="card-img-overlay">
+                                    <h5 className="card-title all-blogs-title">
+                                        {blog.title}
+                                    </h5>
+                                </div>
+                            </Link>
                             <div className="card-body">
-                                <h5 className="card-title">{blog.title}</h5>
                                 <p className="card-text">
                                     {blog.text_intro ? blog.text_intro : blog.text}
                                 </p>
                                 <div className="all-blogs-btn-container">
-                                    <Link to={`/blog/${blog.type}/${blog.id}`} className="btn btn-primary all-blogs-btn">
-                                        Learn More
-                                    </Link>
                                     {isAdmin && (
                                         <div className="mt-2">
-                                            <Link to={`/edit_blog/${blog.type}/${blog.id}`} className="btn btn-warning me-2 all-blogs-btn">
+                                            <Link to={`/edit_blog/${blog.type}/${blog.id}`} className="btn btn-warning all-blogs-btn">
                                                 <FontAwesomeIcon icon={faPencil} />
                                             </Link>
                                         </div>

@@ -44,7 +44,7 @@ export const Add_baby = () => {
                     weight: '',
                     photoUrl: ''
                 });
-                navigate('/gestor_bebes'); 
+                navigate('/manage_babies'); 
             } else {
                 alert('Failed to add baby');
             }
@@ -121,7 +121,7 @@ export const Add_baby = () => {
                         <input
                             type="number"
                             name="weight"
-                            placeholder="gr"
+                            placeholder="kg"
                             value={babyData.weight}
                             onChange={handleChange}
                             className="form-control"
@@ -142,7 +142,7 @@ export const Add_baby = () => {
                     <div className="d-flex justify-content-end btn-container-gestor-bebe">
                         <button type="submit" className="btn btn-edit-gestor-bebe">Save</button>
                         <div>
-                            <Link to="/gestor_bebes">
+                            <Link to="/manage_babies">
                                 <button type="button" className="btn btn-home-gestor-bebe">➜</button>
                             </Link>
                         </div>
