@@ -7,7 +7,7 @@ from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
 from datetime import datetime, timedelta
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from werkzeug.utils import secure_filename
 import os
 #para encriptar la password:
@@ -15,6 +15,8 @@ from flask_bcrypt import Bcrypt
 #para enviar correo EmailJS
 import requests
 import json
+from tempfile import NamedTemporaryFile
+from firebase_admin import storage
 
 
 
@@ -48,7 +50,9 @@ def login():
         password_checked= bcrypt.check_password_hash(user.password,password)
         if password_checked:
             access_token = create_access_token(identity= user.id, additional_claims={"type":"access"})
-            return jsonify({'success' : True, 'user':user.serialize(), 'token' :access_token }), 200
+            output={"token":access_token, "profilePicture":user.getProfilePicture()}
+            #return jsonify({'success' : True, 'user':user.serialize(), 'token' :access_token }), 200
+            return jsonify(output),200
         return jsonify({'success' : False, 'msg':'Usuario o contraseña no válidos'}), 400
     return jsonify({'success' : False,  'msg' : 'El correo electrónico no existe'}), 404
 
@@ -66,9 +70,17 @@ def signup():
         return jsonify({'success': False, 'msg': 'Este correo electrónico ya tiene una cuenta'}), 400
     
     encrypted_password=bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(email=email, password=encrypted_password, username=username, is_admin=False)
-    db.session.add(new_user)
-    db.session.commit()
+    new_user = User(email=email, password=encrypted_password, username=username, is_admin=False, avatar_path="null")
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'success': False, 'msg': 'Este nombre de usuario ya existe'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'msg': 'Ocurrió un error inesperado', 'details': str(e)}), 500
+    
     access_token = create_access_token(identity= new_user.id)
     return jsonify({'success' : True, 'user':new_user.serialize(), 'token':access_token}), 200
        
@@ -94,46 +106,6 @@ def handle_protected():
         return jsonify({'msg':'Has logrado acceder a una ruta protegida '})
     return jsonify({'success':False, 'msg': 'Bad token'})
 
-  
-#[GET] Listar todos los bebes que hay en la base de datos.
-@api.route('/all_babies', methods=['GET'])
-def get_all_babies():
-    bebe = Baby.query.all()
-    aux = list(map(lambda x: x.serialize(), bebe))
-    return jsonify({'msg': 'OK', 'data': aux}), 200   
-
-#[GET] Muestra la información de un solo bebe según su id.
-@api.route('/one_baby/<int:id>', methods=['GET'])
-def get_one_baby(id):
-    bebe = Baby.query.get(id)
-    return jsonify({'msg': 'OK', 'bebe': bebe.serialize()}), 200
-
-#[GET] Muestra la información de un solo bebe según su nombre.
-@api.route('/one_baby_by_name/<string:name>', methods=['GET'])
-def get_one_baby_by_name(name):
-    baby=Baby.query.filter_by(name=name).first()
-    if baby is None:
-        return jsonify({'msg': 'Baby not found'}), 404
-    return jsonify({'msg': 'OK', 'data': baby.serialize()}), 200
-
-#[PUT] Editar los datos de un bebe
-@api.route('/edit_baby/<int:id>', methods=['PUT'])
-def edit_baby(id):
-    baby = Baby.query.get(id)
-    if baby is None:
-        return jsonify({'msg': 'Baby not found'}), 404
-        
-    data = request.json
-    baby.name = data['name']
-    baby.gender = data['gender']
-    baby.age = data['age']
-    baby.height = data['height']
-    baby.weight = data['weight']
-    #baby.avatar_path = data['avatar_path']
-
-    db.session.commit()
-    return jsonify({'msg': 'Datos del bebe editado', 'data': baby.serialize()}), 200    
-    
 #[POST] Nuevo Blog
 @api.route('/new_blog', methods=['POST'])
 @jwt_required()
@@ -331,7 +303,8 @@ def get_babies():
         # Devuelve la lista de bebés
         return jsonify([{
             'id': baby.id,
-            'name': baby.name
+            'name': baby.name,
+            'avatar_path':baby.getProfilePicture()
         } for baby in babies])
 
     except SQLAlchemyError as e:
@@ -541,13 +514,16 @@ def user_info():
     #necesario realizar una consulta a la base de datos para recuperar la información completa del usuario a partir de ese ID
     user = User.query.get(user_id)
     if user:
-        return jsonify({'success': True, 'user': user.serialize()}), 200
+        return jsonify({'success': True, 'user': user.serialize(),"profilePicture":user.getProfilePicture()}), 200
     else:
         return jsonify({'success': False, 'msg': 'Usuario no encontrado'}), 404
 
+
 #agregar un bebé a un usuario
-@api.route('/babies/user/<int:user_id>', methods=['POST'])
-def add_baby(user_id):
+@api.route('/babies/user', methods=['POST'])
+@jwt_required()
+def add_baby():
+    user_id = get_jwt_identity()  # Obtiene el user_id directamente del token JWT
     data = request.get_json()
     
     # Validar que el usuario proporcione todos los campos requeridos
@@ -574,9 +550,34 @@ def add_baby(user_id):
         db.session.commit()
         return jsonify(new_baby.serialize()), 201
     except Exception as e:
+        db.session.rollback()  # Asegura que la sesión se revierta si ocurre un error
         return jsonify({"error": str(e)}), 500
     
+#[GET] Muestra la información de un solo bebe según su id.
+@api.route('/one_baby/<int:id>', methods=['GET'])
+@jwt_required()
+def get_baby(id):
+    bebe = Baby.query.get(id)
+    return jsonify({'msg': 'OK', 'data': bebe.serialize()}), 200
 
+#[PUT] Editar los datos de un bebe
+@api.route('/edit_baby/<int:id>', methods=['PUT'])
+@jwt_required()
+def edit_baby(id):
+    baby = Baby.query.get(id)
+    if baby is None:
+        return jsonify({'msg': 'Baby not found'}), 404
+        
+    data = request.json    
+    baby.name = data.get('name', baby.name)
+    baby.gender = data.get('gender', baby.gender)
+    baby.age = data.get('age', baby.age)
+    baby.height = data.get('height', baby.height)
+    baby.weight = data.get('weight', baby.weight)
+    #baby.avatar_path = data['avatar_path']
+
+    db.session.commit()
+    return jsonify({'msg': 'Datos del bebe editado', 'data': baby.serialize()}), 200  
 
 # Ruta para cambio de contraseña con un user autenticado, solo para el OLVIDÉ LA CONTRASEÑA
 @api.route("/changepassword", methods=['PATCH'])
@@ -692,3 +693,86 @@ def change_password():
         return jsonify({"msg": "Password updated successfully"}), 200
     except Exception as e:
         return jsonify({"msg": str(e)}), 500
+    
+
+   
+#RUTA PARA SUBIR Y GUARDAR LOS ARCHIVOS A FIREBASE    
+@api.route("/profilepic", methods=['PUT'])
+@jwt_required()
+def user_picture():
+    user_id= get_jwt_identity()
+    user=User.query.filter_by(id=user_id).first()
+    if user is None:
+        return jsonify({"msg":"user not found"}), 404
+    #recibo el archivo:
+    file=request.files["profilePics"]
+    extension=file.filename.split(".")[1]
+    #guardamo el archivo de mi peticion en un archivo temporal. Necesario importar from tempfile 
+    temp=NamedTemporaryFile(delete=False)
+    file.save(temp.name)
+    #Subir el archivo a Firebase
+    bucket=storage.bucket()
+    #nombre del archivo
+    filename="userPictures/"+ str(user_id)+ "."+extension
+    resource=bucket.blob(filename) #subimos el archivo a firebase
+    resource.upload_from_filename(temp.name, content_type="image/"+extension)
+    user.avatar_path=filename
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({"msg":"Picture updated", "profilePicture":user.getProfilePicture()}), 200
+
+#RUTA PARA SUBIR Y GUARDAR FOTOS DEL BEBÉ A FIREBASE   
+@api.route("/baby/<int:baby_id>/photo", methods=['PUT'])
+@jwt_required()
+def baby_picture(baby_id):
+    user_id= get_jwt_identity() ## Identificar el usuario autenticado
+    baby = Baby.query.filter_by(id=baby_id, user_id=user_id).first()  # Asegurarse que el bebé pertenece al usuario
+    if baby is None:
+        return jsonify({"msg": "Baby not found or does not belong to this user"}), 404
+    
+    #recibo el archivo de la solicitud
+    file=request.files["babyPhoto"]
+    if not file:
+        return jsonify({"msg": "No photo file provided"}), 400
+    # Obtener la extensión del archivo
+    extension=file.filename.split(".")[1]
+
+    #guardamo el archivo de mi peticion en un archivo temporal. Necesario importar from tempfile 
+    temp=NamedTemporaryFile(delete=False)
+    file.save(temp.name)
+    #Subir el archivo a Firebase
+    bucket=storage.bucket()
+    #nombre del archivo, creamos un nombre único para el archivo usando el ID del bebé y un timestamp
+    filename="babyPictures/"+ str(baby_id)+ "."+extension
+    #subimos el archivo al bucket de firebase
+    resource=bucket.blob(filename) 
+    resource.upload_from_filename(temp.name, content_type="image/"+extension)
+    # Actualizar la ruta de la foto en la base de datos
+    baby.avatar_path=filename
+    #db.session.add(baby)
+    db.session.commit()
+    # Respuesta con la URL pública del archivo subido
+    return jsonify({"msg":"Picture updated", "profilePicture":baby.getProfilePicture()}), 200
+
+# [PUT] Editar los datos de un usuario
+@api.route('/edit_user', methods=['PUT'])
+@jwt_required()
+def edit_user():
+    user_id = get_jwt_identity()  # Obtiene el user_id del token JWT
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.json
+    user.username = data.get('username', user.username)
+    # Si se permite la edición de otros campos, se añaden aquí:
+    user.avatar_path = data.get('avatar_path', user.avatar_path)
+    # Otros campos pueden añadirse de manera similar
+
+    try:
+        db.session.commit()
+        return jsonify({"msg": "User updated successfully", "data": user.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500   

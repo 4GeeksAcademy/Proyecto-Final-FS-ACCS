@@ -3,20 +3,33 @@ import { Context } from "../store/appContext";
 
 import user1 from "../../img/user1.png";
 import bebe1 from "../../img/bebe1.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/gestor_perfil.css";
 
 export const Gestor_perfil = () => {
     const { actions, store } = useContext(Context);
     const [loading, setLoading] = useState(true);
+    const { userData, babies } = store;
+    const navigate = useNavigate();
 
-    const { user, babies } = store;
+    const [isEditing, setIsEditing] = useState(false); // Estado para manejar el modo de edición
+    const [status, setStatus] = useState(""); // Estado para manejar mensajes de estado
+    const [editableData, setEditableData] = useState({
+        username: ""
+    });
+
+    useEffect(() => {
+        if (!store.token) {
+            navigate('/login');
+            return;
+        }
+    }, [store.token, navigate]);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                await actions.getUserInfo(); 
-                await actions.getBabiesByUser(); 
+                await actions.getUserInfo(); // Cargar datos del usuario
+                await actions.getBabiesByUser(); // Cargar bebés del usuario
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching user profile in useEffect:", error);
@@ -26,11 +39,51 @@ export const Gestor_perfil = () => {
         fetchUserProfile();
     }, []);
 
+    useEffect(() => {
+        // Actualizar el estado del formulario cuando los datos del usuario se carguen
+        if (userData) {
+            setEditableData({
+                username: userData.username,
+            });
+        }
+    }, [userData]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditableData({
+            ...editableData,
+            [name]: value
+        });
+    };
+
+    async function handleProfilePictureUpload(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        setStatus("Cargando...");
+        const success = await actions.uploadProfilePicture(formData);
+        if (success) {
+            setStatus("Picture cargada");
+        } else {
+            setStatus("Error uploading picture");
+        }
+    }
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        const success = await actions.editUser(editableData);
+        if (success) {
+            setIsEditing(false);
+            setStatus("Saved successfully");
+        } else {
+            setStatus("Error saving data");
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
 
-    if (!user) {
+    if (!userData) {
         return <div>No user data found</div>;
     }
 
@@ -38,45 +91,99 @@ export const Gestor_perfil = () => {
     return (
         <div className="container container-gestor-perfil" >
             <div className="gestor-perfil-img">
-                <img src={user1} className="gestor-perfil-img-perfil" alt="IMG_user" />
+                <img src={(!store.profilePicture || store.profilePicture.includes("null")) ? user1 : store.profilePicture} className="gestor-perfil-img-perfil" alt="IMG_user" />
             </div>
             <div className="container-gestor-perfil-right">
                 <div className="form-gestor-perfil">
-                    <label>Username</label>
-                    <input type="text" name="username" placeholder="Username" value={user.username} readOnly />
+                <label>Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        value={editableData.username}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
                 </div>
                 <div className="form-gestor-perfil">
                     <label>Email</label>
-                    <input type="text" name="email" placeholder="email" value={user.email} readOnly />
+                    <input
+                        type="text"
+                        name="email"
+                        placeholder="Email"
+                        value={userData.email}
+                        readOnly
+                    />
+                </div>
+                <div className="form-gestor-perfil">
+                    <form onSubmit={handleProfilePictureUpload}>
+                        <div className="profile-picture-perfil">
+                            <label htmlFor="formFile" className="form-label">Foto de perfil</label>
+                            <input
+                                className="form-control"
+                                type="file"
+                                id="formFile"
+                                name="profilePics"
+                                disabled={!isEditing}
+                            />
+                            <button
+                                type="submit"
+                                className="ar-btn gestor-perfil-edit mt-0"
+                                style={{ width: "50%" }}
+                                disabled={!isEditing}
+                            >
+                                Upload
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 <div className="form-gestor-perfil">
                     <label>Password</label>
-                    <input type="text" name="password" placeholder="password" value={user.password} readOnly />
+                    <input
+                        type="text"
+                        name="password"
+                        placeholder="Password"
+                        value={userData.password}
+                        readOnly
+                        
+                    />
                 </div>
                 <div className="form-gestor-perfil-reset">
-                    <Link to="/reset_password" >Want to reset your password?</Link>
+                    <Link to="/change_password">Want to reset your password?</Link>
                 </div>
-                <div>
-                    <button type="submit" className="ar-btn gestor-perfil-edit">
-                        Edit / Save
-                    </button>
+                
+                <div className="d-flex justify-content-end btn-container-gestor-bebe">
+                    {isEditing ? (
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="btn btn-save-gestor-bebe"
+                        >
+                            Save
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="btn btn-edit-gestor-bebe"
+                        >
+                            Edit
+                        </button>
+                    )}
                 </div>
+                {status && <div className="status-message">{status}</div>}
                 <div className="gestor-perfil-bebes">
                     <label className="gestor-perfil-bebes-titulo">Babies</label>
-                    {/* Mostrar las fotos de los bebés */}
                     {babies.length > 0 ? (
                         <div className="gestor-perfil-bebes-bebe">
                             <ul className="gestor-perfil-baby-list">
                                 {babies.map((baby) => (
                                     <li key={baby.id} className="gestor-perfil-baby-list-item">
-                                        <img src={bebe1} alt={baby.name} className="baby-photo" />
+                                        <img src={baby.avatar_path || bebe1} alt={baby.name} className="baby-photo" />
                                     </li>
                                 ))}
                                 <li>
-                                    <Link
-                                        to="/add_baby"
-                                        className="btn add-new-baby-text-gestor"
-                                    >
+                                    <Link to="/add_baby" className="btn add-new-baby-text-gestor">
                                         +
                                     </Link>
                                 </li>
@@ -86,8 +193,8 @@ export const Gestor_perfil = () => {
                         <div className="gestor-perfil-bebes-no-found">No babies found</div>
                     )}
                 </div>
+                
             </div>
-
         </div>
     );
 };

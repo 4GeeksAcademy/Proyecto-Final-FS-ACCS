@@ -22,6 +22,7 @@ flask-jwt-extended = "*"
 flask-mail = "*"
 flask-bcrypt = "*"
 requests = "*"
+firebase-admin = "*"
 
 [requires]
 python_version = "3.10"

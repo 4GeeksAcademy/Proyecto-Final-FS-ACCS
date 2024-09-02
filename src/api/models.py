@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from firebase_admin import storage
+from datetime import timedelta
 
 db = SQLAlchemy()
 
@@ -15,12 +17,23 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.email}>'
+    
+    def getProfilePicture(self):
+        output=""
+        #SI EL USER TIENE IMAGEN EL CAMPO NO NULO:
+        if self.avatar_path is not None:
+                bucket=storage.bucket()
+                resource=bucket.blob(self.avatar_path)
+                picture_url=resource.generate_signed_url(version="v4", expiration=timedelta(minutes=15),method="GET")
+                output=picture_url
+        return output
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
             "username": self.username,
+            "profilePicture":self.getProfilePicture(),
             # No serializar la contraseña por razones de seguridad
         }
 
@@ -43,6 +56,16 @@ class Baby(db.Model):
     def __repr__(self):
         return f'<Baby {self.name}>'
     
+    def getProfilePicture(self):
+        output=""
+        #SI EL USER TIENE IMAGEN EL CAMPO NO NULO:
+        if self.avatar_path is not None:
+                bucket=storage.bucket()
+                resource=bucket.blob(self.avatar_path)
+                picture_url=resource.generate_signed_url(version="v4", expiration=timedelta(minutes=15),method="GET")
+                output=picture_url
+        return output
+    
     def serialize(self):
         return {
             "id": self.id,
@@ -51,7 +74,7 @@ class Baby(db.Model):
             "age": self.age,
             "height": self.height,
             "weight": self.weight,
-            "avatar_path": self.avatar_path,
+            "avatar_path": self.getProfilePicture(),
             "user_id": self.user_id
         }
         

@@ -19,6 +19,8 @@ export const Gestor_bebe = () => {
         weight: ""
     });
     const [isEditing, setIsEditing] = useState(false);
+    const [status, setStatus] = useState(""); // Estado para manejar mensajes de estado (ej. "Cargando...")
+	const [imageSrc, setImageSrc] = useState(bebe1);
 
     useEffect(() => {
         if (!store.token) {
@@ -32,6 +34,7 @@ export const Gestor_bebe = () => {
         console.log("Received new babyData:", babyData);
         if (babyData) {
             setEditableData(babyData);
+            setImageSrc(babyData.avatar_path || bebe1);
         }
     }, [babyData]);
 
@@ -40,23 +43,44 @@ export const Gestor_bebe = () => {
         setEditableData({ ...editableData, [name]: value });
     };
 
-    const handleSave = (event) => {
-        event.preventDefault();
-        actions.updateBabyData(editableData);
-        setIsEditing(false);
-        alert("Baby edited successfully!");
+    const handleSave = async (e) => {
+        e.preventDefault();
+        const success = await actions.updateBabyData(editableData);
+        if (success) {
+            setStatus("Saved successfully");
+        } else {
+            setStatus("Error saving data");
+        }
     };
+
+    async function handleUploadBabyPicture(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        setStatus("Cargando...");
+		try{
+			const success = await actions.uploadBabyPicture(id,formData);
+        	if (success) {
+            	setStatus("Picture cargada");
+				setImageSrc(URL.createObjectURL(formData.get('babyPhoto')));
+        	} else {
+            	setStatus("Error uploading picture");
+        	}
+		} catch (error) {
+            console.error("Error in handleUploadBabyPicture:", error);
+            setStatus("Error uploading picture");
+        }
+    }
 
     return (
         <div className="container-gestor-bebe">
             <div className="container-img-gestor-bebes">
-                <div className="img-gestor-bebe-camara">
+                {/* <div className="img-gestor-bebe-camara">
                     <svg width="128" height="106" viewBox="0 0 128 106" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M122.667 90.3333C122.667 93.1623 121.543 95.8754 119.543 97.8758C117.542 99.8762 114.829 101 112 101H16.0002C13.1712 101 10.4581 99.8762 8.45769 97.8758C6.4573 95.8754 5.3335 93.1623 5.3335 90.3333V31.6667C5.3335 28.8377 6.4573 26.1246 8.45769 24.1242C10.4581 22.1238 13.1712 21 16.0002 21H37.3335L48.0002 5H80.0002L90.6668 21H112C114.829 21 117.542 22.1238 119.543 24.1242C121.543 26.1246 122.667 28.8377 122.667 31.6667V90.3333Z" stroke="#B4E49D" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M64.0002 79.6667C75.7822 79.6667 85.3335 70.1154 85.3335 58.3333C85.3335 46.5513 75.7822 37 64.0002 37C52.2181 37 42.6668 46.5513 42.6668 58.3333C42.6668 70.1154 52.2181 79.6667 64.0002 79.6667Z" stroke="#B4E49D" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                </div>
-                <img src={bebe1} className="img-gestor-bebe" alt="IMG_Baby" />
+                </div> */}
+                <img src={imageSrc} className="img-gestor-bebe" alt="IMG_Baby" />
             </div>
             <div className="form-gestor-bebe">
                 <label>Name</label>
@@ -87,7 +111,33 @@ export const Gestor_bebe = () => {
                     <span className="gestor-bebe-unit">kg</span>
                 </div>
             </div>
+            <div className="form-gestor-bebe">
+                <form onSubmit={handleUploadBabyPicture}>
+                    <div className="d-flex">
+                        <label htmlFor="formFile" className="form-label">Foto</label>
+                        <input
+                            className="form-control"
+                            type="file"
+                            id="formFile"
+                            name="babyPhoto"
+                            disabled={!isEditing}
+                            />
+                        <button
+                            type="submit"
+                            className="btn btn-save-gestor-bebe"
+                            style={{ width: "50%" }}
+                            disabled={!isEditing}
+                            >
+                            Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {status && <div className="status-message">{status}</div>}
             <div className="d-flex justify-content-end btn-container-gestor-bebe">
+                <Link to="/manage_babies">
+					<button type="button" className="btn btn-home-gestor-bebe arrow-left">➜</button>
+				</Link>
                 {isEditing ? (
                     <button type="button" onClick={handleSave} className="btn btn-save-gestor-bebe">Save</button>
                 ) : (

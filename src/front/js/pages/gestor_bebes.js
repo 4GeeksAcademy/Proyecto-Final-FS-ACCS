@@ -39,7 +39,7 @@ export const Gestor_bebes = () => {
                     {babies.map((baby) => (
                         <li key={baby.id} className="card-gestor-bebes">
                             <img
-                                src={baby.photoUrl || bebe1}
+                                src={baby.avatar_path || bebe1}
                                 alt={baby.name}
                             />
                             <span>{baby.name}</span>

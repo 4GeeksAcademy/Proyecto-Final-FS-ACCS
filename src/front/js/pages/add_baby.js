@@ -7,6 +7,7 @@ import "../../styles/gestor_bebe.css";
 export const Add_baby = () => {
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
+    const [status, setStatus] = useState(""); // Estado para manejar mensajes de estado (ej. "Cargando...")
     const [babyData, setBabyData] = useState({
         name: '',
         gender: '',
@@ -35,7 +36,6 @@ export const Add_baby = () => {
         try {
             const success = await actions.createBaby(babyData);
             if (success) {
-                alert('Baby added successfully!');
                 setBabyData({
                     name: '',
                     gender: '',
@@ -44,9 +44,10 @@ export const Add_baby = () => {
                     weight: '',
                     photoUrl: ''
                 });
+                setStatus("Saved successfully");
                 navigate('/manage_babies'); 
             } else {
-                alert('Failed to add baby');
+                setStatus("Failed to add baby");
             }
         } catch (error) {
             console.error("Error adding baby:", error);
@@ -121,7 +122,7 @@ export const Add_baby = () => {
                         <input
                             type="number"
                             name="weight"
-                            placeholder="kg"
+                            placeholder="gr"
                             value={babyData.weight}
                             onChange={handleChange}
                             className="form-control"

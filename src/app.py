@@ -11,6 +11,10 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
+#importaciones para firebase
+import firebase_admin
+from firebase_admin import credentials
+
 
 # from models import Person
 
@@ -41,7 +45,13 @@ def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
         return is_blocked and not is_password
     else:
         return is_blocked
-    
+
+#FIREBASE
+cred = credentials.Certificate("firebase_key.json")
+firebase_admin.initialize_app(cred,{
+    'storageBucket': 'babytracker-53621.appspot.com'
+})
+
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:

@@ -2,41 +2,81 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			],
 			babyData: {
                 name: "",
                 gender: "",
                 age: "",
                 height: "",
-                weight: ""
+                weight: "",
+                avatar_path: ""
             },
 			blogs: [],
             userData: {
                 username: "",
                 email: "",
                 password:"",
+                profilePicture:""
             },
             babies: [], // Agregado para almacenar la lista de bebés
             selectedBabyId: null, // Para seleccionar un bebé específico
-            token:null
+            token:null,
+            profilePicture:""
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-            //Accion para obtener el perfil del usuario por EMAIL
+            // Acción para subir la foto del bebé
+            uploadBabyPicture: async (babyId, formData) => {
+                const store = getStore();
+                const token = store.token;
+                
+                try {
+                    let resp = await fetch(process.env.BACKEND_URL + `api/baby/${babyId}/photo`, {
+                        method: "PUT",
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+                    
+                    if (!resp.ok) return false;
+
+                    let data = await resp.json();
+                    // Actualizar la foto del bebé en el store
+                    const updatedBabies = store.babies.map(baby => {
+                        if (baby.id === babyId) {
+                            return { ...baby, avatar_path: data.avatar_path };
+                        }
+                        return baby;
+                    });
+
+                    setStore({ babies: updatedBabies });
+                    return true;
+
+                } catch (error) {
+                    console.error("Error uploading baby picture:", error);
+                    return false;
+                }
+            },
+            uploadProfilePicture: async(formData) =>{
+                const {token}=getStore()
+                const resp= await fetch(process.env.BACKEND_URL + "api/profilepic", {
+                    method: "PUT",
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }, 
+                    body: formData
+                })
+                if (!resp.ok) return false
+
+                const data= await resp.json()
+                setStore ({profilePicture: data.profilePicture})
+                return true;
+
+            },
+            //Accion para obtener el perfil del usuario
 			getUserInfo: async () => {
 				try {
                     const store = getStore();
@@ -61,6 +101,37 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.error("Error fetching user info:", error);
 				}
 			},
+            // Acción para editar los datos del usuario
+            editUser: async (updatedUserData) => {
+                try {
+                    const store = getStore();
+                    const token = store.token;
+
+                    const response = await fetch(process.env.BACKEND_URL + "api/edit_user", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedUserData)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("User data updated successfully:", data);
+                        // Actualiza el store con los nuevos datos del usuario
+                        setStore({ userData: data.data });
+                        return true;
+                    } else {
+                        const errorData = await response.json();
+                        console.error("Failed to update user data:", errorData);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error updating user data:", error);
+                    return false;
+                }
+            },
 			//accion para reset password
 			resetPassword: async (email, password) => {
 				try {
@@ -101,17 +172,23 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error fetching babies", error);
                 }
             },
-
             // Obtener datos de un bebé específico
 			fetchBabyData: async (babyId) => {
+                const store = getStore();
+                const token = store.token;
 				try {
-                    console.log(`Fetching data for baby with ID: ${babyId}`);
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/one_baby/${babyId}`);
+                    const response = await fetch(process.env.BACKEND_URL + `/api/one_baby/${babyId}`,{
+                        method: "GET",
+                        headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${token}`
+                         }
+                    });
                     const data = await response.json();
             
-                    if (response.ok && data && data.bebe) {
-                        console.log("Fetched baby data:", data.bebe);
-                        setStore({ babyData: data.bebe, selectedBabyId: babyId });
+                    if (response.ok && data && data.data) {
+                        console.log("Fetched baby data:", data.data);
+                        setStore({ babyData: data.data, selectedBabyId: babyId });
                     } else {
                         console.error("Failed to fetch baby data or data is missing:", data);
                     }
@@ -119,14 +196,16 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error fetching baby data:", error);
                 }
 			},
-
-			// Actualizar los datos del bebé
+            // Actualizar los datos del bebé
             updateBabyData: async (updatedData) => {
+                const store = getStore();
+                const token = store.token;
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}api/edit_baby/${updatedData.id}`, {
+                    const response = await fetch(process.env.BACKEND_URL + `/api/edit_baby/${updatedData.id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify(updatedData),
                     });
@@ -134,14 +213,16 @@ const getState = ({ getStore, getActions, setStore }) => {
                         const data = await response.json();
                         console.log("Baby data updated successfully:", data);
                         setStore({ babyData: data.data });
+                        return true;
                     } else {
                         console.error("Failed to update baby data");
+                        return false;
                     }
                 } catch (error) {
                     console.error("Error updating baby data", error);
+                    return false;
                 }
             },
-
 			// Crear Blog
 			createBlog: async (blogData) => {
                 const store = getStore();
@@ -209,8 +290,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     return null;
                 }
             },
-
-            // Login
             // Register
             register: async (formData) => {
                 try {
@@ -248,13 +327,14 @@ const getState = ({ getStore, getActions, setStore }) => {
                     });
 
                     if (!response.ok) {
+                        setStore({token:null})
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
 
                     const data = await response.json();
 
                     if (data && data.token) {
-                        setStore({ user: data.user, token: data.token });
+                        setStore({ user: data.user, token: data.token, profilePicture: data.profilePicture });
                         localStorage.setItem('token', data.token);
                     } else {
                         throw new Error('Invalid response data');
@@ -277,16 +357,16 @@ const getState = ({ getStore, getActions, setStore }) => {
             setUser: (user) => {
                 setStore(prevStore => ({ ...prevStore, user }));
             },
-
             //Accion para crear un nuevo bebe
             createBaby: async (babyData) => {
                 try {
                     const store = getStore();
                     const userId = store.userData.id || 1; // Usa el userId del store, o 1 por defecto
-                    const response = await fetch(process.env.BACKEND_URL + `/api/babies/user/${userId}`, {
+                    const response = await fetch(process.env.BACKEND_URL + `/api/babies/user`, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${store.token}`
                         },
                         body: JSON.stringify(babyData)
                     });
@@ -310,7 +390,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             //Accion LOGOUT
             logout: () => {
 				localStorage.removeItem('token')
-				setStore({user:null, token:null})
+				setStore({user:null, token:null, profilePicture:null})
 				return true
 			},
 
@@ -326,53 +406,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log("Error loading message from backend", error)
 				}
 			},
-
-
-			Login: async (formData) => {
-				try{
-					// fetching data from the backend
-
-					const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
-						headers: {
-							'Content-type': 'application/ json'
-						},
-						method: 'POST',
-						body: JSON.stringify(formData)
-
-					})
-					const data = await resp.json()
-					setStore({ user: data.user,token: data.token })
-					localStorage.setItem('token', data.token)
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
-
-			register: async (formData) => {
-				try{
-					// fetching data from the backend
-
-					const resp = await fetch(process.env.BACKEND_URL + "/api/signup", {
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						method: 'POST',
-						body: JSON.stringify(formData)
-
-					})
-					const data = await resp.json()
-					setStore({ user: data.user,token: data.token })
-					localStorage.setItem('token', data.token)
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
-            
-            /// accion para cambiar la contraseña
+            // accion para cambiar la contraseña
             changePassword: async (currentPassword, newPassword) => {
                 const store = getStore(); 
                 const token = store.token;
@@ -407,22 +441,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error changing password:", error);
                     return null; 
                 }
-            },
-      
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
-			}
+            }
 		}
 	};
 };
