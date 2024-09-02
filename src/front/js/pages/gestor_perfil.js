@@ -59,12 +59,12 @@ export const Gestor_perfil = () => {
     async function handleProfilePictureUpload(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        setStatus("Cargando...");
+        console.log("Loading...");
         const success = await actions.uploadProfilePicture(formData);
         if (success) {
-            setStatus("Picture cargada");
+            console.log("Picture Loaded");
         } else {
-            setStatus("Error uploading picture");
+            console.log("Error uploading picture");
         }
     }
 
@@ -73,9 +73,9 @@ export const Gestor_perfil = () => {
         const success = await actions.editUser(editableData);
         if (success) {
             setIsEditing(false);
-            setStatus("Saved successfully");
+            alert("Saved successfully");
         } else {
-            setStatus("Error saving data");
+            alert("Error saving data");
         }
     };
 
@@ -95,7 +95,7 @@ export const Gestor_perfil = () => {
             </div>
             <div className="container-gestor-perfil-right">
                 <div className="form-gestor-perfil">
-                <label>Username</label>
+                    <label>Username</label>
                     <input
                         type="text"
                         name="username"
@@ -116,9 +116,9 @@ export const Gestor_perfil = () => {
                     />
                 </div>
                 <div className="form-gestor-perfil">
-                    <form onSubmit={handleProfilePictureUpload}>
+                    <form onSubmit={handleProfilePictureUpload} style={{ display: 'flex', width: '100%' }}>
                         <div className="profile-picture-perfil">
-                            <label htmlFor="formFile" className="form-label">Foto de perfil</label>
+                            <label htmlFor="formFile" className="form-label">Profile Picture</label>
                             <input
                                 className="form-control"
                                 type="file"
@@ -128,8 +128,7 @@ export const Gestor_perfil = () => {
                             />
                             <button
                                 type="submit"
-                                className="ar-btn gestor-perfil-edit mt-0"
-                                style={{ width: "50%" }}
+                                className="ar-btn gestor-perfil-edit"
                                 disabled={!isEditing}
                             >
                                 Upload
@@ -137,64 +136,65 @@ export const Gestor_perfil = () => {
                         </div>
                     </form>
                 </div>
-                <div className="form-gestor-perfil">
-                    <label>Password</label>
-                    <input
-                        type="text"
-                        name="password"
-                        placeholder="Password"
-                        value={userData.password}
-                        readOnly
-                        
-                    />
-                </div>
-                <div className="form-gestor-perfil-reset">
-                    <Link to="/change_password">Want to reset your password?</Link>
-                </div>
-                
-                <div className="d-flex justify-content-end btn-container-gestor-bebe">
-                    {isEditing ? (
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            className="btn btn-save-gestor-bebe"
-                        >
-                            Save
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={() => setIsEditing(true)}
-                            className="btn btn-edit-gestor-bebe"
-                        >
-                            Edit
-                        </button>
-                    )}
-                </div>
-                {status && <div className="status-message">{status}</div>}
-                <div className="gestor-perfil-bebes">
-                    <label className="gestor-perfil-bebes-titulo">Babies</label>
-                    {babies.length > 0 ? (
-                        <div className="gestor-perfil-bebes-bebe">
-                            <ul className="gestor-perfil-baby-list">
-                                {babies.map((baby) => (
-                                    <li key={baby.id} className="gestor-perfil-baby-list-item">
-                                        <img src={baby.avatar_path || bebe1} alt={baby.name} className="baby-photo" />
-                                    </li>
-                                ))}
-                                <li>
-                                    <Link to="/add_baby" className="btn add-new-baby-text-gestor">
-                                        +
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-                    ) : (
-                        <div className="gestor-perfil-bebes-no-found">No babies found</div>
-                    )}
-                </div>
-                
+
+            <div className="form-gestor-perfil">
+                <label>Password</label>
+                <input
+                    type="text"
+                    name="password"
+                    placeholder="Password"
+                    value={userData.password}
+                    readOnly
+
+                />
             </div>
+            <div className="form-gestor-perfil-reset">
+                <Link to="/change_password">Want to reset your password?</Link>
+            </div>
+
+            <div className="d-flex justify-content-end btn-container-gestor-bebe">
+                {isEditing ? (
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        className="btn gestor-perfil-edit"
+                    >
+                        Save
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={() => setIsEditing(true)}
+                        className="btn gestor-perfil-edit"
+                    >
+                        Edit
+                    </button>
+                )}
+            </div>
+            {status && <div className="status-message">{status}</div>}
+            <div className="gestor-perfil-bebes">
+                <label className="gestor-perfil-bebes-titulo">Babies</label>
+                {babies.length > 0 ? (
+                    <div className="gestor-perfil-bebes-bebe">
+                        <ul className="gestor-perfil-baby-list">
+                            {babies.map((baby) => (
+                                <li key={baby.id} className="gestor-perfil-baby-list-item">
+                                    <img src={baby.avatar_path || bebe1} alt={baby.name} className="baby-photo" />
+                                </li>
+                            ))}
+                            <li>
+                                <Link to="/add_baby" className="btn add-new-baby-text-gestor">
+                                    +
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                ) : (
+                    <div className="gestor-perfil-bebes-no-found">No babies found</div>
+                )}
+            </div>
+
         </div>
+        </div >
     );
 };
