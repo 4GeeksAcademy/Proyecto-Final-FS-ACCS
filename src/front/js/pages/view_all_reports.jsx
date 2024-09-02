@@ -249,12 +249,14 @@ export const ViewReports = () => {
                                     <button type="button" onClick={() => handleEditClick(report)} className="edit-report__btn">Edit Report</button>
                                 )}
                             </form>
+                            
                         </div>
                     ))}
                 </div>
             ) : (
                 <p>No reports found</p>
             )}
+            <button onClick={() => navigate('/dashboard')} className="btn btn-secondary mt-3 blog-detail-btn">➜</button>
         </div>
     );
 };
