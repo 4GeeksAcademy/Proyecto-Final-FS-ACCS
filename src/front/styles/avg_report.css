@@ -86,3 +86,28 @@
     text-align: center;
 
 }
+
+@media (max-width: 768px) {
+    .avg-container {
+        flex-direction: column;
+    }
+
+    .avg-row {
+        flex-direction: column;
+    }
+
+    .avg-header h2 {
+        font-size: 28pt;
+    }
+
+    .avg-chart-general-container {
+        flex-direction: column;
+        margin-bottom: 40px;
+    }
+
+    .custom-select {
+        width: 100%;
+        font-size: 14px;
+        height: 35px;
+    }
+}
