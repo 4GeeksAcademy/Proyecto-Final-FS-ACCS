@@ -1,22 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
+import ReactApexChart from "react-apexcharts";
 import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendar, faPlus, faChartBar, faMoon, faUtensils, faBabyCarriage, faDroplet, faPills, faSchool, faBaby } from '@fortawesome/free-solid-svg-icons';
 import "../../styles/avg_report.css";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const CalendarPlaceholder = () => {
-    return (
-        <div className="card ar-calendar-card">
-            <div className="ar-card-body">
-                <h3>Calendar</h3>
-                {/* Aquí puedes agregar tu implementación de calendario en el futuro */}
-            </div>
-        </div>
-    );
-};
 
 export const AverageReportPage = () => {
     const { babyId } = useParams();
@@ -24,11 +12,10 @@ export const AverageReportPage = () => {
     const [interval, setInterval] = useState("weekly");
     const [averages, setAverages] = useState(null);
     const [extremes, setExtremes] = useState({ max: null, min: null });
-    const [babyName, setBabyName] = useState(""); // Nuevo estado para el nombre del bebé
+    const [babyName, setBabyName] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Redirige al login si no hay un token en el contexto
         if (!store.token) {
             navigate('/login');
             return;
@@ -36,19 +23,16 @@ export const AverageReportPage = () => {
 
         const fetchData = async () => {
             try {
-                // Añadir el token de autorización en el encabezado
                 const headers = {
                     'Authorization': `Bearer ${store.token}`,
                     'Content-Type': 'application/json'
                 };
 
-                // Obtener datos de promedios y extremos
                 const averagesData = await actions.fetchAverages(babyId, interval, headers);
                 const extremesData = await actions.fetchExtremes(babyId, interval, headers);
                 setAverages(averagesData);
                 setExtremes(extremesData);
 
-                // Obtener el nombre del bebé
                 const babyResponse = await fetch(`${process.env.BACKEND_URL}api/babies`, { headers });
                 if (!babyResponse.ok) {
                     console.error('Error fetching babies:', await babyResponse.text());
@@ -67,130 +51,398 @@ export const AverageReportPage = () => {
         fetchData();
     }, [babyId, interval, actions, store.token, navigate]);
 
-    const chartData = averages && extremes.max && extremes.min ? {
-        labels: ['Bedtime', 'Meals', 'Diapers', 'Walks', 'Water'],
-        datasets: [
-            {
-                label: 'Average',
-                data: [
-                    averages.bedtime,
-                    averages.meals,
-                    averages.diapers,
-                    averages.walks,
-                    averages.water
-                ],
-                backgroundColor: '#075E81', // Color para promedio
-                borderRadius: 50, // Esquinas redondeadas
-                borderSkipped: false // Sin borde en las esquinas
+    // Función para generar opciones del gráfico radial para una variable específica
+    const generateChartOptions = (label, avg, max) => ({
+        series: [Math.min((avg / max) * 100, 100)],
+        options: {
+            chart: {
+                height: 350,
+                type: 'radialBar',
             },
-            {
-                label: 'Maximum',
-                data: [
-                    extremes.max.bedtime,
-                    extremes.max.meals,
-                    extremes.max.diapers,
-                    extremes.max.walks,
-                    extremes.max.water
-                ],
-                backgroundColor: '#B4E49D', // Color para máximo
-                borderRadius: 50, // Esquinas redondeadas
-                borderSkipped: false // Sin borde en las esquinas
+            plotOptions: {
+                radialBar: {
+                    startAngle: -135,
+                    endAngle: 225,
+                    hollow: {
+                        margin: 0,
+                        size: '70%',
+                        background: '#fff',
+                    },
+                    track: {
+                        background: '#fff',
+                        strokeWidth: '67%',
+                        dropShadow: {
+                            enabled: true,
+                            top: -3,
+                            left: 0,
+                            blur: 4,
+                            opacity: 0.35
+                        }
+                    },
+                    dataLabels: {
+                        show: true,
+                        name: {
+                            offsetY: -10,
+                            color: '#888',
+                            fontSize: '17px'
+                        },
+                        value: {
+                            formatter: function (val) {
+                                return avg.toFixed(2); // Muestra el valor promedio
+                            },
+                            color: '#111',
+                            fontSize: '36px',
+                            show: true,
+                        }
+                    }
+                }
             },
-            {
-                label: 'Minimum',
-                data: [
-                    extremes.min.bedtime,
-                    extremes.min.meals,
-                    extremes.min.diapers,
-                    extremes.min.walks,
-                    extremes.min.water
-                ],
-                backgroundColor: '#FBEE84', // Color para mínimo
-                borderRadius: 50, // Esquinas redondeadas
-                borderSkipped: false // Sin borde en las esquinas
-            }
-        ]
-    } : null;
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'dark',
+                    type: 'horizontal',
+                    shadeIntensity: 0.5,
+                    gradientToColors: ['#ABE5A1'],
+                    inverseColors: true,
+                    opacityFrom: 1,
+                    opacityTo: 1,
+                    stops: [0, 100]
+                }
+            },
+            stroke: {
+                lineCap: 'round'
+            },
+            labels: [label],
+        }
+    });
 
     return (
         <div className="avg-container">
             <div className="avg-row">
-                <div className="avg-calendar">
-                    <CalendarPlaceholder />
-                </div>
                 <div className="avg-content">
                     <div className="avg-header">
                         <h2>{babyName ? `${babyName}'s Report` : 'Report'}</h2>
                         <div className="avg-controls">
-                            <label>Select Interval:    </label>
-                            <select value={interval} onChange={(e) => setInterval(e.target.value)}>
+                            <label>Select Interval:</label>
+                            <select className="custom-select" value={interval} onChange={(e) => setInterval(e.target.value)}>
                                 <option value="weekly">Weekly</option>
                                 <option value="biweekly">Biweekly</option>
                                 <option value="monthly">Monthly</option>
                             </select>
                         </div>
                     </div>
-                    {chartData ? (
-                        <div className="avg-chart">
-                            <Bar
-                                data={chartData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: {
-                                            position: 'bottom',
-                                            labels: {
-                                                boxWidth: 12,
-                                                font: {
-                                                    family: 'Poppins',
-                                                    size: 14
-                                                }
-                                            }
-                                        },
-                                        title: {
-                                            display: false,
-                                            text: 'Averages, Maximums, and Minimums',
-                                            font: {
-                                                family: 'Poppins',
-                                                size: 16
-                                            }
-                                        }
-                                    },
-                                    scales: {
-                                        x: {
-                                            grid: {
-                                                display: false, 
-                                                drawBorder: false 
+
+                    {averages && extremes.max && extremes.min ? (
+                        <div className="avg-chart-general-container">
+                            <div className="avg-chart-container">
+                                <div className="avg-chart-ind">
+                                    <ReactApexChart
+                                        options={{
+                                            chart: {
+                                                height: 600,
+                                                type: 'radialBar',
                                             },
-                                            ticks: {
-                                                font: {
-                                                    family: 'Poppins',
-                                                    size: 14
+                                            plotOptions: {
+                                                radialBar: {
+                                                    startAngle: 0,
+                                                    endAngle: 365,
+                                                    hollow: {
+                                                        margin: 0,
+                                                        size: '50%',
+                                                        background: '#fff',
+                                                    },
+                                                    track: {
+                                                        background: '#fff',
+                                                        strokeWidth: '120%',
+
+                                                    },
+                                                    dataLabels: {
+                                                        show: true,
+                                                        name: {
+                                                            color: '#888',
+                                                            fontSize: '1px',
+                                                            formatter: function () {
+                                                                return ' '
+                                                            },
+                                                        },
+                                                        value: {
+                                                            formatter: function (val) {
+                                                                return `${averages.bedtime.toFixed(2)}`; // Muestra el promedio y la unidad que desees
+                                                            },
+                                                            color: '#075E81',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontWeight: '600',
+                                                            fontSize: '29px',
+                                                            show: true,
+                                                            offsetY: -5,
+                                                        }
+                                                    }
                                                 }
-                                            }
-                                        },
-                                        y: {
-                                            grid: {
-                                                display: false, 
-                                                drawBorder: false
                                             },
-                                            ticks: {
-                                                font: {
-                                                    family: 'Poppins',
-                                                    size: 12,
-                                                    color: '#075E81'
+                                            fill: {
+                                                type: 'solid',
+                                                colors: ['#B4E49D']
+                                            },
+                                            stroke: {
+                                                lineCap: 'round',
+                                            },
+                                        }}
+                                        series={[Math.min((averages.bedtime / extremes.max.bedtime) * 100, 100)]}
+                                        type="radialBar"
+                                        height={350}
+                                    />
+                                </div>
+                                <h3><FontAwesomeIcon icon={faMoon} /></h3>
+                            </div>
+                            <div className="avg-chart-container">
+                                <div className="avg-chart-ind">
+                                    <ReactApexChart
+                                        options={{
+                                            chart: {
+                                                height: 600,
+                                                type: 'radialBar',
+                                            },
+                                            plotOptions: {
+                                                radialBar: {
+                                                    startAngle: 0,
+                                                    endAngle: 365,
+                                                    hollow: {
+                                                        margin: 0,
+                                                        size: '50%',
+                                                        background: '#fff',
+                                                    },
+                                                    track: {
+                                                        background: '#fff',
+                                                        strokeWidth: '120%',
+
+                                                    },
+                                                    dataLabels: {
+                                                        show: true,
+                                                        name: {
+                                                            color: '#888',
+                                                            fontSize: '1px',
+                                                            formatter: function () {
+                                                                return ' '
+                                                            },
+                                                        },
+                                                        value: {
+                                                            formatter: function (val) {
+                                                                return `${averages.meals.toFixed(2)}`; // Muestra el promedio y la unidad que desees
+                                                            },
+                                                            color: '#075E81',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontWeight: '600',
+                                                            fontSize: '29px',
+                                                            show: true,
+                                                            offsetY: -5,
+                                                        }
+                                                    }
                                                 }
-                                            }
-                                        }
-                                    }
-                                }}
-                            />
+                                            },
+                                            fill: {
+                                                type: 'solid',
+                                                colors: ['#B4E49D']
+                                            },
+                                            stroke: {
+                                                lineCap: 'round',
+                                            },
+                                        }}
+                                        series={[Math.min((averages.meals / extremes.max.meals) * 100, 100)]}
+                                        type="radialBar"
+                                        height={350}
+                                    />
+                                </div>
+                                <h3><FontAwesomeIcon icon={faUtensils} /></h3>
+                            </div>
+                            <div className="avg-chart-container">
+                                <div className="avg-chart-ind">
+                                    <ReactApexChart
+                                        options={{
+                                            chart: {
+                                                height: 600,
+                                                type: 'radialBar',
+                                            },
+                                            plotOptions: {
+                                                radialBar: {
+                                                    startAngle: 0,
+                                                    endAngle: 365,
+                                                    hollow: {
+                                                        margin: 0,
+                                                        size: '50%',
+                                                        background: '#fff',
+                                                    },
+                                                    track: {
+                                                        background: '#fff',
+                                                        strokeWidth: '120%',
+
+                                                    },
+                                                    dataLabels: {
+                                                        show: true,
+                                                        name: {
+                                                            color: '#888',
+                                                            fontSize: '1px',
+                                                            formatter: function () {
+                                                                return ' '
+                                                            },
+                                                        },
+                                                        value: {
+                                                            formatter: function (val) {
+                                                                return `${averages.diapers.toFixed(2)}`; // Muestra el promedio y la unidad que desees
+                                                            },
+                                                            color: '#075E81',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontWeight: '600',
+                                                            fontSize: '29px',
+                                                            show: true,
+                                                            offsetY: -5,
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            fill: {
+                                                type: 'solid',
+                                                colors: ['#B4E49D']
+                                            },
+                                            stroke: {
+                                                lineCap: 'round',
+                                            },
+                                        }}
+                                        series={[Math.min((averages.diapers / extremes.max.diapers) * 100, 100)]}
+                                        type="radialBar"
+                                        height={350}
+                                    />
+                                </div>
+                                <h3>
+                                    Diapers
+                                </h3>
+                            </div>
+                            <div className="avg-chart-container">
+                                <div className="avg-chart-ind">
+                                    <ReactApexChart
+                                        options={{
+                                            chart: {
+                                                height: 600,
+                                                type: 'radialBar',
+                                            },
+                                            plotOptions: {
+                                                radialBar: {
+                                                    startAngle: 0,
+                                                    endAngle: 365,
+                                                    hollow: {
+                                                        margin: 0,
+                                                        size: '50%',
+                                                        background: '#fff',
+                                                    },
+                                                    track: {
+                                                        background: '#fff',
+                                                        strokeWidth: '120%',
+
+                                                    },
+                                                    dataLabels: {
+                                                        show: true,
+                                                        name: {
+                                                            color: '#888',
+                                                            fontSize: '1px',
+                                                            formatter: function () {
+                                                                return ' '
+                                                            },
+                                                        },
+                                                        value: {
+                                                            formatter: function (val) {
+                                                                return `${averages.walks.toFixed(2)}`; // Muestra el promedio y la unidad que desees
+                                                            },
+                                                            color: '#075E81',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontWeight: '600',
+                                                            fontSize: '29px',
+                                                            show: true,
+                                                            offsetY: -5,
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            fill: {
+                                                type: 'solid',
+                                                colors: ['#B4E49D']
+                                            },
+                                            stroke: {
+                                                lineCap: 'round',
+                                            },
+                                        }}
+                                        series={[Math.min((averages.walks / extremes.max.walks) * 100, 100)]}
+                                        type="radialBar"
+                                        height={350}
+                                    />
+                                </div>
+                                <h3><FontAwesomeIcon icon={faBabyCarriage} /></h3>
+                            </div>
+                            <div className="avg-chart-container">
+                                <div className="avg-chart-ind">
+                                    <ReactApexChart
+                                        options={{
+                                            chart: {
+                                                height: 600,
+                                                type: 'radialBar',
+                                            },
+                                            plotOptions: {
+                                                radialBar: {
+                                                    startAngle: 0,
+                                                    endAngle: 365,
+                                                    hollow: {
+                                                        margin: 0,
+                                                        size: '50%',
+                                                        background: '#fff',
+                                                    },
+                                                    track: {
+                                                        background: '#fff',
+                                                        strokeWidth: '120%',
+
+                                                    },
+                                                    dataLabels: {
+                                                        show: true,
+                                                        name: {
+                                                            color: '#888',
+                                                            fontSize: '1px',
+                                                            formatter: function () {
+                                                                return ' '
+                                                            },
+                                                        },
+                                                        value: {
+                                                            formatter: function (val) {
+                                                                return `${averages.water.toFixed(2)}`; // Muestra el promedio y la unidad que desees
+                                                            },
+                                                            color: '#075E81',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontWeight: '600',
+                                                            fontSize: '29px',
+                                                            show: true,
+                                                            offsetY: -5,
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            fill: {
+                                                type: 'solid',
+                                                colors: ['#B4E49D']
+                                            },
+                                            stroke: {
+                                                lineCap: 'round',
+                                            },
+                                        }}
+                                        series={[Math.min((averages.water / extremes.max.water) * 100, 100)]}
+                                        type="radialBar"
+                                        height={350}
+                                    />
+                                </div>
+                                <h3><FontAwesomeIcon icon={faDroplet} /></h3>
+                            </div>
                         </div>
                     ) : (
                         <p>No data available for the selected interval.</p>
                     )}
 
-                    <button onClick={() => navigate('/dashboard')} className="btn btn-secondary mt-3">Back to Add Report</button>
+                    <button onClick={() => navigate('/dashboard')} className="btn btn-secondary mt-3 blog-detail-btn">➜</button>
                 </div>
             </div>
         </div>

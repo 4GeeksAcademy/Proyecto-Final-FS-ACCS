@@ -141,6 +141,21 @@
     font-style: normal;
     border-width: 0px;
     font-size: 16pt;
+    height: 40px;
+    border-radius: 25px;
+    align-items: center;
+    text-align: center;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.blog-detail-btn:hover {
+    background-color: #075E81;
+    color: white;
+    height: 40px;
+    border-radius: 25px;
+
 }
 
 /* Ajustes para dispositivos móviles */

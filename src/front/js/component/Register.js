@@ -62,7 +62,7 @@ export const Register = () => {
                 actions.setToken(data.token);
                 actions.setUser(data.user);
                 showAlert("Registration successful!", "success");
-                navigate("/dashboard");
+                navigate("/manage_babies");
             } else {
                 showAlert(data.msg || "Sign up failed!", "error");
             }
