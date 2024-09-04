@@ -12,7 +12,7 @@ export const Navbar = () => {
     localStorage.removeItem('token');
     actions.logout();
     navigate('/login');
-};
+  };
   if (!store.token) {
     return null;
   }
@@ -30,9 +30,14 @@ export const Navbar = () => {
         </button>
         {/* Icono de perfil visible solo en pantallas grandes */}
         <div className="d-none d-md-flex justify-content-end">
-          <Link to="/profile">
-            <i className="fa-solid fa-circle-user profile-icon" style={{ fontSize: '30px', color: 'white' }}></i>
-          </Link>
+          {/* <Link to="/profile">
+            <img
+              src={(!store.profilePicture || store.profilePicture.includes("null")) ? user1 : store.profilePicture}
+              className="gestor-perfil-img-perfil"
+              alt="IMG_user"
+              style={{ height: '30px', width: '30px', borderRadius: '50%' }}
+            />
+          </Link> */}
         </div>
         <div className="offcanvas offcanvas-start text-bg-dark offcanvas-custom" tabIndex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
           <div className="offcanvas-body">
@@ -59,7 +64,6 @@ export const Navbar = () => {
                 <h1 className="titulo-navItem" style={{ color: '#B4E49D' }}>Profile</h1>
                 <ul className="no-bullets">
                   <li><Link to="/profile" style={{ color: 'inherit', textDecoration: 'none' }}>See profile</Link></li>
-                  <li>Edit profile</li>
                   <li><button className="btn btn-link" onClick={handleLogout} style={{ color: 'inherit', textDecoration: 'none' }}>Log Out</button></li>
                 </ul>
               </li>

@@ -105,11 +105,9 @@
     color: #075E81;
     width: 100%;
     margin-right: 30px;
-    margin-left: 30px;
     font-size: 14pt;
     border-radius: 25pt;
     outline: none;
-
 }
 
 .btn-home-gestor-bebe{
@@ -135,6 +133,37 @@
 .arrow-left {
     transform: rotate(180deg);
     display: inline-block;
+}
+
+.form-picture {
+    display: flex; 
+    align-items: center; 
+    flex-direction: row;
+}
+
+.btn-container {
+    margin-left: auto; 
+}
+
+.btn-upload-gestor-bebe {
+    background-color: #B4E49D;
+    font-weight: 700;
+    color: #075E81;
+    height: 40px;
+    font-size: 14pt;
+    border-radius: 25pt;
+    outline: none;
+    margin-left: 10px;
+    font-family: "Poppins", sans-serif;
+    font-style: normal;
+}
+
+@media (max-width: 770px) {
+    .btn-edit-gestor-bebe,
+    .btn-save-gestor-bebe {
+        margin: 0;
+        margin-bottom: 10px;
+    }
 }
 
 @media (max-width: 600px) {
@@ -178,4 +207,20 @@
     .img-gestor-bebe-camara {
         display: none;
     }
+
+    .form-picture {
+        flex-direction: column; 
+        align-items: flex-start; 
+    }
+
+    .btn-container {
+        margin-left: 0; 
+        margin-top: 10px;
+        align-self: flex-end; 
+    }
+
+    .btn-upload-gestor-bebe {
+        margin-left: 0; 
+    }
+
 }

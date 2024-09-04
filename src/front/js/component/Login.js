@@ -195,8 +195,8 @@ export const Login = () => {
 							</form>
 						</div>
 						<div className="modal-footer">
-							<button type="button" className="btn btn-login btn-primary" onClick={handleForgotPasswordSubmit}>Send</button>
-							<button type="button" className="btn btn-login btn-secondary" data-bs-dismiss="modal">Cancel</button>
+							<button type="button" className="btn btn-login-modal btn-primary" onClick={handleForgotPasswordSubmit}>Send</button>
+							<button type="button" className="btn btn-login-modal btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						</div>
 					</div>
 				</div>

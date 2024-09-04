@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faPlus, faChartBar, faMoon, faUtensils, faBabyCarriage, faDroplet, faPills, faSchool, faBaby } from '@fortawesome/free-solid-svg-icons';
 import { Context } from "../store/appContext"; 
+import { GoogleCalendar } from "../component/googleCalendar";
 import "../../styles/add_report.css";
 
 
@@ -132,9 +133,9 @@ export const AddReport = () => {
 
     return (
         <div className="ar-container" style={{ marginTop: '55px' }}>
-            <div className="card ar-calendar-card">
+             <div className="card ar-calendar-card">
                 <div className="ar-card-body">
-                    <CalendarPlaceholder />
+                    <GoogleCalendar /> 
                 </div>
             </div>
             <div className="ar-form-card">
