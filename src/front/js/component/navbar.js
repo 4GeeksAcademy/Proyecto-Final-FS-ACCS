@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../styles/navbar.css";
 import logo_bebe from "../../img/logo_bebe.png";
 import { Context } from "../store/appContext";
+import user1 from "../../img/user1.png"
 
 export const Navbar = () => {
   const { store, actions } = useContext(Context);
@@ -30,14 +31,14 @@ export const Navbar = () => {
         </button>
         {/* Icono de perfil visible solo en pantallas grandes */}
         <div className="d-none d-md-flex justify-content-end">
-          {/* <Link to="/profile">
+          <Link to="/profile">
             <img
               src={(!store.profilePicture || store.profilePicture.includes("null")) ? user1 : store.profilePicture}
               className="gestor-perfil-img-perfil"
               alt="IMG_user"
               style={{ height: '30px', width: '30px', borderRadius: '50%' }}
             />
-          </Link> */}
+          </Link> 
         </div>
         <div className="offcanvas offcanvas-start text-bg-dark offcanvas-custom" tabIndex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
           <div className="offcanvas-body">

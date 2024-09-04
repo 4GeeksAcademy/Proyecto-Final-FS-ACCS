@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 
+.ar-calendar-card {
+    padding: 0;
+    border: none;
+}
+
+.ar-card-body {
+    padding: 0px;
+}
+
 /* Contenedor principal */
 .ar-container {
     display: flex; 
@@ -9,6 +18,7 @@
     min-height: 93vh;
     align-items: center;
     margin: auto;
+    width: 100%;
 }
 
 
@@ -16,6 +26,7 @@
 
 .ar-calendar-card {
     width: 40%; 
+    margin: auto;
 }
 
 
@@ -29,7 +40,6 @@
 }
 
 .ar-card-body {
-    padding: 20px;
     font-family: "Poppins", sans-serif;
     font-weight: 400;
     font-style: normal;
@@ -147,30 +157,34 @@
     background-color: #B4E49D; 
     color: #075E81; 
     border-radius: 25px; 
-    height: 50px; 
+    min-height: 50px; 
+    padding: 0 10px;
     font-weight: 600;
     font-size: 15pt;
     border: none;
+    min-width: 100%;
 }
 
 .ar-btn-secondary {
     background-color: #075E81; 
     color: white; 
     border-radius: 25px; 
-    height: 50px; 
+    min-height: 50px; 
     font-size: 15pt;
     border: none;
-    width: 50%;
+    min-width: 50%;
 }
 
 .ar-btn-primary:hover {
     background-color: #075E81; 
     color: white;
+    cursor: pointer;
 }
 
 .ar-btn-secondary:hover {
     background-color: #B4E49D;
     color: #075E81;
+    cursor: pointer;
 }
 
 
@@ -289,41 +303,29 @@ input[type="number"] {
 
     .ar-container {
         flex-direction: column; 
-        padding: 20px;
-        width: 100%; 
+        padding: 10px; 
+        margin: 0;
     }
 
     .ar-calendar-card {
-        width: 100%; 
-        margin-bottom: 20px; 
+        display: none;
     }
 
     .ar-form-card {
-        width: 100%; 
-        padding: 10px;
+        width: 90%; 
+        margin: 0;
+        padding: 0;
     }
 
     .ar-form-grid {
         grid-template-columns: 1fr; 
-        gap: 20px; 
-    }
-
-    .ar-form-group label {
-        width: 50%; 
-        margin-right: 10px;
-        text-align: left; 
-    }
-    
-
-    .ar-form-group input, 
-    .ar-form-group textarea,
-    .ar-form-group select {
-        width: 100%; 
-    }
-
-    .ar-button-container {
-        flex-direction: column; 
         gap: 10px; 
+    }
+
+    /* Botones */
+    .ar-button-container {
+        flex-direction: column;
+        gap: 10px;
     }
 
     .ar-btn-secondary {
@@ -331,15 +333,11 @@ input[type="number"] {
     }
 
     .ar-switch-container {
-        flex-direction: row; 
-        justify-content: space-between;
+        flex-direction: column; 
+        align-items: flex-start; 
     }
 
     .ar-switch-container label {
-        width: 120px;
-    }
-
-    input:checked + .slider:before {
-        transform: translateX(73px); 
+        margin-bottom: 10px; 
     }
 }

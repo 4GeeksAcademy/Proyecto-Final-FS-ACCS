@@ -4,14 +4,17 @@ import ApiCalendar from 'react-google-calendar-api';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Modal, Button, Form } from 'react-bootstrap'; 
+import { Modal, Button, Form } from 'react-bootstrap';
+import "../../styles/googlecalendar.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInstagram, faFacebookF, faXTwitter, faGoogle } from '@fortawesome/free-brands-svg-icons';
 
 const CLIENT_ID = "1059256211415-jqr22lfih5jre0cl0nbmhi7bd0q55cf0.apps.googleusercontent.com";
 const config = {
-    "clientId": CLIENT_ID,
-    "apiKey": "AIzaSyAmENulZCGuDqNtkl8lxROSMdp1O5gJeKM",
-    "scope": "https://www.googleapis.com/auth/calendar",
-    "discoveryDocs": [
+    clientId: CLIENT_ID,
+    apiKey: "AIzaSyAmENulZCGuDqNtkl8lxROSMdp1O5gJeKM",
+    scope: "https://www.googleapis.com/auth/calendar",
+    discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"
     ]
 };
@@ -24,7 +27,7 @@ export const GoogleCalendar = () => {
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState('view'); // 'view', 'edit', 'delete'
+    const [modalMode, setModalMode] = useState('view'); // 'view', 'edit', 'delete', 'add'
 
     useEffect(() => {
         if (isSignedIn) {
@@ -55,6 +58,7 @@ export const GoogleCalendar = () => {
             let response = await apiCalendar.handleAuthClick();
             if (response.access_token) {
                 setIsSignedIn(true);
+                fetchEvents(); // Fetch events after successful sign-in
             }
         } catch (error) {
             console.error("Error during sign-in: ", error);
@@ -67,39 +71,22 @@ export const GoogleCalendar = () => {
         setEvents([]);
     };
 
-    const handleAddEvent = async () => {
+    const handleAddEvent = () => {
         if (!isSignedIn) return alert('Please sign in first');
 
-        const event = {
-            summary: 'New Event',
-            start: {
-                dateTime: new Date(),
-                timeZone: 'America/Los_Angeles',
-            },
-            end: {
-                dateTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-                timeZone: 'America/Los_Angeles',
-            },
-        };
-
-        try {
-            await apiCalendar.createEvent(event);
-            fetchEvents(); // Refresh the events list after adding a new one
-        } catch (error) {
-            console.error("Error adding event: ", error);
-        }
-    };
-
-    const handleSelectEvent = (event) => {
-        setSelectedEvent(event);
-        setModalMode('view');
+        setSelectedEvent({
+            title: '',
+            start: new Date(),
+            end: new Date(new Date().getTime() + 60 * 60 * 1000),
+        });
+        setModalMode('add');
         setShowModal(true);
     };
 
-    const handleEditEvent = async () => {
+    const handleSaveEvent = async () => {
         if (!isSignedIn || !selectedEvent) return;
 
-        const updatedEvent = {
+        const event = {
             summary: selectedEvent.title,
             start: {
                 dateTime: selectedEvent.start.toISOString(),
@@ -112,12 +99,28 @@ export const GoogleCalendar = () => {
         };
 
         try {
-            await apiCalendar.updateEvent(selectedEvent.id, updatedEvent);
-            fetchEvents();
+            if (modalMode === 'add') {
+                await apiCalendar.createEvent(event);
+            } else if (modalMode === 'edit') {
+                await apiCalendar.updateEvent(selectedEvent.id, event);
+            }
+
+            // Refresh the events list after saving
+            await fetchEvents(); // Ensure we await this to ensure state is updated
             setShowModal(false);
         } catch (error) {
-            console.error("Error updating event: ", error);
+            console.error("Error saving event: ", error);
         }
+    };
+
+    const handleSelectEvent = (event) => {
+        setSelectedEvent(event);
+        setModalMode('view');
+        setShowModal(true);
+    };
+
+    const handleEditEvent = () => {
+        setModalMode('edit');
     };
 
     const handleDeleteEvent = async () => {
@@ -125,7 +128,7 @@ export const GoogleCalendar = () => {
 
         try {
             await apiCalendar.deleteEvent(selectedEvent.id);
-            fetchEvents();
+            await fetchEvents(); // Ensure we await this to ensure state is updated
             setShowModal(false);
         } catch (error) {
             console.error("Error deleting event: ", error);
@@ -136,24 +139,32 @@ export const GoogleCalendar = () => {
         setShowModal(false);
     };
 
+    const formats = {
+        dayFormat: (date, culture, localizer) =>
+            localizer.format(date, 'ddd', culture).charAt(0),
+    };
+
     return (
         <GoogleOAuthProvider clientId={CLIENT_ID}>
             <div>
-                <button onClick={handleSignIn}>Sign In</button>
-                <button onClick={handleSignOut}>Sign Out</button>
-                <button onClick={handleAddEvent}>Add Event</button>
-                <Calendar
-                    localizer={localizer}
-                    events={events}
-                    startAccessor="start"
-                    endAccessor="end"
-                    style={{ height: 500, margin: "50px" }}
-                    onSelectEvent={handleSelectEvent}
-                />
+
+                <div className="custom-calendar-container">
+                    <Calendar
+                        localizer={localizer}
+                        events={events}
+                        startAccessor="start"
+                        endAccessor="end"
+                        style={{ height: 500, margin: "50px" }}
+                        onSelectEvent={handleSelectEvent}
+                        formats={formats}
+                    />
+                </div>
 
                 <Modal show={showModal} onHide={handleModalClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title>{modalMode === 'view' ? 'Event Details' : modalMode === 'edit' ? 'Edit Event' : 'Delete Event'}</Modal.Title>
+                        <Modal.Title>
+                            {modalMode === 'view' ? 'Event Details' : modalMode === 'edit' ? 'Edit Event' : 'Add Event'}
+                        </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {modalMode !== 'delete' ? (
@@ -202,19 +213,26 @@ export const GoogleCalendar = () => {
                     <Modal.Footer>
                         {modalMode === 'view' && (
                             <>
-                                <Button variant="secondary" onClick={() => { setModalMode('edit'); }}>Edit</Button>
-                                <Button variant="danger" onClick={() => { setModalMode('delete'); }}>Delete</Button>
+                                <Button variant="secondary" onClick={handleEditEvent}>Edit</Button>
+                                <Button variant="danger" onClick={() => setModalMode('delete')}>Delete</Button>
                             </>
                         )}
-                        {modalMode === 'edit' && (
-                            <Button variant="primary" onClick={handleEditEvent}>Save Changes</Button>
-                        )}
+                        {modalMode === 'edit' || modalMode === 'add' ? (
+                            <Button variant="primary" onClick={handleSaveEvent}>
+                                {modalMode === 'add' ? 'Add Event' : 'Save Changes'}
+                            </Button>
+                        ) : null}
                         {modalMode === 'delete' && (
                             <Button variant="danger" onClick={handleDeleteEvent}>Confirm Delete</Button>
                         )}
                         <Button variant="secondary" onClick={handleModalClose}>Close</Button>
                     </Modal.Footer>
                 </Modal>
+            </div>
+            <div className="calendar-btn-container">
+                <button onClick={handleSignIn}><FontAwesomeIcon icon={faGoogle} /></button>
+                {/* <button onClick={handleSignOut}>Sign Out</button> */}
+                {/* <button onClick={handleAddEvent}>Add Event</button> */}
             </div>
         </GoogleOAuthProvider>
     );

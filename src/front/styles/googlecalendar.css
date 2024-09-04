@@ -1,0 +1,259 @@
+/* calendar-btn-container , calendar-btn-container button,  */
+.calendar-btn-container {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+}
+
+.calendar-btn-container button {
+    height: 40px;
+    border-radius: 25px;
+    padding: 10px;
+    border: none;
+    background-color: #FBEE84;
+    color: #075E81;
+}
+
+.calendar-btn-container button:hover {
+    background-color: #075E81;
+    color: #FBEE84;
+}
+
+.rbc-time-view {
+    border-color: white !important;
+}
+
+.rbc-events-container {
+    border-color: #FBEE84 !important;
+}
+
+.rbc-time-slot {
+    border-color: #FBEE84 !important;
+}
+
+
+.rbc-time-content {
+    border-color: white !important;
+}
+
+.rbc-timeslot-group {
+    border-color: #FBEE84 !important;
+}
+
+.rbc-time-gutter {
+    border-color: white !important;
+}
+
+.rbc-current-time-indicator {
+    border-width: 4px;
+    border-color: #075E81;
+}
+
+.rbc-time-header {
+    border-color: white !important;
+}
+
+.rbc-time-header-gutter {
+    border-color: white !important;
+}
+
+.rbc-time-header-cell {
+    height: 30px;
+    border-radius: 25px;
+    align-items: center !important;
+}
+
+.custom-calendar-container,
+.custom-modal,
+.custom-btn {
+    border: none;
+    border-radius: 10px; 
+    color: #075E81; 
+
+}
+
+.rbc.button-link {
+    color: #075E81;
+    font-weight: 600 !important; 
+}
+
+.custom-calendar .rbc-day-bg,
+.custom-calendar .rbc-time-slot {
+    border-color: #075E81 !important; 
+}
+
+.rbc-month-view {
+    border-color: white; 
+}
+
+.rbc-header {
+    background-color: #FBEE84;
+    border-radius: 25px;
+    border-width: 0px;
+    border-color: white !important;
+    margin: 2px;
+    align-items: center;
+}
+
+.rbc-today {
+    border-radius: 25px;
+    background-color: #075E81;
+    color: #FBEE84;
+    align-items: center;
+}
+
+.rbc-today span {
+    color: #075E81;
+    font-style: italic;
+}
+
+.rbc-day-bg {
+    margin: 2px;
+    border-color: white !important;
+    font-size: 16pt !important;
+    padding: 5px;
+}
+
+.rbc-today {
+    background-color: #FBEE84 !important; 
+    border: #FBEE84 solid 2px !important;
+    border-radius: 10px;
+}
+
+.rbc-row-bg {
+    border-color: white !important;
+}
+
+.rbc-month-row {
+    border-color: white !important;
+}
+
+.rbc-toolbar-label {
+    font-weight: 800;
+    font-size: 18pt;
+    text-align: center;
+}
+
+.rbc-off-range-bg {
+    background-color: white !important;
+}
+
+.rbc-date-cell {
+    padding: 8px;
+
+}
+
+.rbc-time-header-content {
+    border-color: white !important;
+}
+
+.rbc-button-link span{
+    font-weight: 700;
+    text-align: center;
+    align-items: center;
+}
+
+.rbc-allday-cell {
+    display: none !important;
+}
+
+.custom-calendar .rbc-event,
+.custom-calendar .rbc-event-content,
+.custom-calendar .rbc-today {
+    border-radius: 10px;
+    background-color: #075E81; 
+    color: white; 
+    border: none;
+    border-color: white;
+}
+
+.rbc-event {
+    border-color: #FBEE84 !important;
+    border-width: 2px !important;
+}
+
+.rbc-agenda-event-cell {
+    border-color: white !important;
+}
+
+.rbc-agenda-date-cell {
+    border-color: white !important;
+}
+
+.rbc-agenda-table {
+    border-color: white !important;
+}
+
+.rbc-agenda-table tr {
+    border-color: white !important;
+}
+
+.rbc-agenda-table td {
+    border-color: white !important;
+}
+
+.rbc-header {
+    text-align: center;
+}
+
+.rbc-btn-group button {
+    background-color: #FBEE84;
+    color: #075E81;
+    font-weight: 600;
+    border-radius: 25px;
+    border-color: #FBEE84;
+    border-width: 1px;
+}
+
+.rbc-btn-group button:active {
+    background-color: #075E81 !important;
+    color: #FBEE84 !important;
+}
+
+.rbc-btn-group button:hover {
+    background-color: #075E81 !important;
+    color: #FBEE84 !important;
+}
+
+.rbc-toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+
+
+/* .custom-modal .modal-content {
+    background-color: #075E81;
+    border-radius: 10px;
+    color: white;
+}
+
+.custom-modal .btn-primary,
+.custom-modal .btn-secondary,
+.custom-modal .btn-danger {
+    background-color: #B4E49D;
+    border: none;
+    color: white;
+}
+
+.custom-modal .btn-secondary {
+    background-color: #075E81;
+}
+
+.custom-modal .form-control {
+    background-color: #075E81;
+    color: white;
+    border-radius: 5px;
+    border: none;
+}
+
+.custom-modal .form-label {
+    color: white;
+} */
+
+.custom-calendar-container {
+    padding: 0;
+    border: none;
+}
