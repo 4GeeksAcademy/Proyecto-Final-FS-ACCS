@@ -47,19 +47,7 @@ def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
         return is_blocked
 
 #FIREBASE
-credentials_fb={
-     "type": os.getenv("TYPE"),
-     "project_id": os.getenv("PROJECT_ID"),
-     "private_key_id": os.getenv("PRIVATE_KEY_ID"),
-     "private_key": f"-----BEGIN PRIVATE KEY-----\n{os.getenv('PRIVATE_KEY')}\n-----END PRIVATE KEY-----\n",
-     "client_email": os.getenv("CLIENT_EMAIL"),
-     "client_id": os.getenv("CLIENT_ID"),
-     "auth_uri": os.getenv("AUTH_URI"),
-     "token_uri": os.getenv("TOKEN_URI"),
-     "auth_provider_x509_cert_url": os.getenv("AUTH_PROVIDER_X509_CERT_URL"),
-     "client_x509_cert_url": os.getenv("CLIENT_X509_CERT_URL")
-}
-cred=credentials.Certificate(credentials_fb)
+cred = credentials.Certificate("firebase_key.json")
 firebase_admin.initialize_app(cred,{
     'storageBucket': 'babytracker-53621.appspot.com'
 })
