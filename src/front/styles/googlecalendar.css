@@ -1,4 +1,40 @@
-/* calendar-btn-container , calendar-btn-container button,  */
+
+.modal-header h5, .modal-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-size: 24pt;
+    color: #075E81;
+}
+
+.modal-footer .btn {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 12pt;
+    background-color: #FBEE84;
+    color: #075E81;
+    border: 3px solid #FBEE84;
+    border-radius: 20px;
+}
+
+.form-control {
+    background-color: #ffffff;
+    border: 3px solid #FBEE84;
+    border-radius: 25px;
+    height: 40px;
+    padding: 10px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-size: 13pt;
+    margin-bottom: 15px;
+}
+
+.form-label {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 14pt;
+    color: #075E81;
+}
+
 .calendar-btn-container {
     width: 100%;
     align-items: center;
@@ -12,6 +48,8 @@
     border: none;
     background-color: #FBEE84;
     color: #075E81;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .calendar-btn-container button:hover {

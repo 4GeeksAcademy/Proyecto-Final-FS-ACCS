@@ -15,10 +15,12 @@
     display: flex; 
     gap: 20px; 
     padding: 20px;
-    min-height: 93vh;
+    height: 100vh;
     align-items: center;
     margin: auto;
     width: 100%;
+    padding-top: 0px;
+    margin-top: 0px;
 }
 
 

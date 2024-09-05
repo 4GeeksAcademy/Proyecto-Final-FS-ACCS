@@ -37,16 +37,28 @@ export const GoogleCalendar = () => {
 
     const fetchEvents = async () => {
         try {
+            // Define el rango de fechas (de hoy hasta los próximos 30 días)
+            const timeMin = new Date().toISOString(); // Fecha actual en formato ISO
+            const timeMax = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(); // Próximos 30 días
+
+            // Llama a la API pasando el rango de fechas
             let response = await apiCalendar.listEvents({
+                timeMin,  // Fecha mínima (hoy)
+                timeMax,  // Fecha máxima (en 30 días)
                 showDeleted: false,
-                maxResults: 10,
+                maxResults: 50, // Ajusta el número máximo de resultados si es necesario
+                orderBy: 'startTime',  // Ordenar los eventos por fecha de inicio
+                singleEvents: true  // Obtiene instancias de eventos recurrentes
             });
+
+            // Mapea los eventos recibidos
             const googleEvents = response.result.items.map(event => ({
                 id: event.id,
                 title: event.summary,
                 start: new Date(event.start.dateTime || event.start.date),
                 end: new Date(event.end.dateTime || event.end.date),
             }));
+
             setEvents(googleEvents);
         } catch (error) {
             console.error("Error fetching events: ", error);
@@ -170,9 +182,10 @@ export const GoogleCalendar = () => {
                         {modalMode !== 'delete' ? (
                             <Form>
                                 <Form.Group controlId="formEventTitle">
-                                    <Form.Label>Title</Form.Label>
+                                    <Form.Label className="form-label">Title</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        className="form-control"
                                         value={selectedEvent ? selectedEvent.title : ''}
                                         onChange={(e) => setSelectedEvent({
                                             ...selectedEvent,
@@ -182,9 +195,10 @@ export const GoogleCalendar = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="formEventStart">
-                                    <Form.Label>Start</Form.Label>
+                                    <Form.Label className="form-label">Start</Form.Label>
                                     <Form.Control
                                         type="datetime-local"
+                                        className="form-control"
                                         value={selectedEvent ? moment(selectedEvent.start).format('YYYY-MM-DDTHH:mm') : ''}
                                         onChange={(e) => setSelectedEvent({
                                             ...selectedEvent,
@@ -194,9 +208,10 @@ export const GoogleCalendar = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="formEventEnd">
-                                    <Form.Label>End</Form.Label>
+                                    <Form.Label className="form-label">End</Form.Label>
                                     <Form.Control
                                         type="datetime-local"
+                                        className="form-control"
                                         value={selectedEvent ? moment(selectedEvent.end).format('YYYY-MM-DDTHH:mm') : ''}
                                         onChange={(e) => setSelectedEvent({
                                             ...selectedEvent,
@@ -213,26 +228,25 @@ export const GoogleCalendar = () => {
                     <Modal.Footer>
                         {modalMode === 'view' && (
                             <>
-                                <Button variant="secondary" onClick={handleEditEvent}>Edit</Button>
-                                <Button variant="danger" onClick={() => setModalMode('delete')}>Delete</Button>
+                                <Button variant="secondary" onClick={handleEditEvent} className="btn-login-modal">Edit</Button>
+                                <Button variant="danger" onClick={() => setModalMode('delete')} className="btn-login-modal">Delete</Button>
                             </>
                         )}
                         {modalMode === 'edit' || modalMode === 'add' ? (
-                            <Button variant="primary" onClick={handleSaveEvent}>
+                            <Button variant="primary" onClick={handleSaveEvent} className="btn-login-modal">
                                 {modalMode === 'add' ? 'Add Event' : 'Save Changes'}
                             </Button>
                         ) : null}
                         {modalMode === 'delete' && (
-                            <Button variant="danger" onClick={handleDeleteEvent}>Confirm Delete</Button>
+                            <Button variant="danger" onClick={handleDeleteEvent} className="btn-login-modal">Confirm Delete</Button>
                         )}
-                        <Button variant="secondary" onClick={handleModalClose}>Close</Button>
+                        <Button variant="secondary" onClick={handleModalClose} className="btn-login-modal">Close</Button>
                     </Modal.Footer>
                 </Modal>
             </div>
             <div className="calendar-btn-container">
                 <button onClick={handleSignIn}><FontAwesomeIcon icon={faGoogle} /></button>
-                {/* <button onClick={handleSignOut}>Sign Out</button> */}
-                {/* <button onClick={handleAddEvent}>Add Event</button> */}
+                <button onClick={handleAddEvent}>Add Event</button>
             </div>
         </GoogleOAuthProvider>
     );
