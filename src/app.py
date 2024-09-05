@@ -51,7 +51,7 @@ credentials_fb={
      "type": os.getenv("TYPE"),
      "project_id": os.getenv("PROJECT_ID"),
      "private_key_id": os.getenv("PRIVATE_KEY_ID"),
-     "private_key": f"-----BEGIN PRIVATE KEY-----\n{os.getenv("PRIVATE_KEY")}\n-----END PRIVATE KEY-----\n",
+     "private_key": f"-----BEGIN PRIVATE KEY-----\n{os.getenv('PRIVATE_KEY')}\n-----END PRIVATE KEY-----\n",
      "client_email": os.getenv("CLIENT_EMAIL"),
      "client_id": os.getenv("CLIENT_ID"),
      "auth_uri": os.getenv("AUTH_URI"),
