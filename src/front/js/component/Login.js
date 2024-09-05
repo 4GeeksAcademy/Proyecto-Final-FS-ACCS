@@ -51,7 +51,7 @@ export const Login = () => {
 	}
 
 	const respuestaGoogle = (respuesta) => {
-		console.log(respuesta);
+		console.error("Google Login Error:", respuesta);
 	}
 
 	const handleForgotPasswordSubmit = async () => {
@@ -154,10 +154,10 @@ export const Login = () => {
 						<button type="submit" className="btn btn-login">Login</button>
 						<div className="login-text"><p>or</p></div>
 						<GoogleLogin className="googlebutton"
-							clientId="953402330168-infsbkt3uifhc81i1ohvn4oiq8dl596t.apps.googleusercontent.com"
+							clientId="1059256211415-jqr22lfih5jre0cl0nbmhi7bd0q55cf0.apps.googleusercontent.com"
 							onSuccess={respuestaGoogle}
 							onFailure={respuestaGoogle}
-							cookiePolicy={'single_host_origin'}
+							cookiePolicy={'none'}
 						/>
 					</div>
 					{error && <p className="text-danger">All fields are required</p>}
