@@ -77,12 +77,11 @@
     font-weight: 400;
     font-style: normal;
     width: 80%;
-    display: flex;
-    justify-content: space-between;
     font-size: 14pt;
     color: white; 
     z-index: 1001;
     margin-top: 10px; 
+    text-align: center;
 }
 
 /* Sección Derecha (Texto y Segunda Imagen) */

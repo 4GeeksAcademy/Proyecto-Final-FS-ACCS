@@ -27,7 +27,7 @@ export const GoogleCalendar = () => {
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState('view'); // 'view', 'edit', 'delete', 'add'
+    const [modalMode, setModalMode] = useState('view'); // 'view', 'delete', 'add'
 
     useEffect(() => {
         if (isSignedIn) {
@@ -110,8 +110,6 @@ export const GoogleCalendar = () => {
         try {
             if (modalMode === 'add') {
                 await apiCalendar.createEvent(event);
-            } else if (modalMode === 'edit') {
-                await apiCalendar.updateEvent(selectedEvent.id, event);
             }
 
             await fetchEvents(); 
@@ -125,10 +123,6 @@ export const GoogleCalendar = () => {
         setSelectedEvent(event);
         setModalMode('view');
         setShowModal(true);
-    };
-
-    const handleEditEvent = () => {
-        setModalMode('edit');
     };
 
     const handleDeleteEvent = async () => {
@@ -174,7 +168,7 @@ export const GoogleCalendar = () => {
                 <Modal show={showModal} onHide={handleModalClose}>
                     <Modal.Header closeButton>
                         <Modal.Title>
-                            {modalMode === 'view' ? 'Event Details' : modalMode === 'edit' ? 'Edit Event' : 'Add Event'}
+                            {modalMode === 'view' ? 'Event Details' : 'Add Event'}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
@@ -226,14 +220,11 @@ export const GoogleCalendar = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         {modalMode === 'view' && (
-                            <>
-                                <Button variant="secondary" onClick={handleEditEvent} className="btn-login-modal">Edit</Button>
-                                <Button variant="danger" onClick={() => setModalMode('delete')} className="btn-login-modal">Delete</Button>
-                            </>
+                            <Button variant="danger" onClick={() => setModalMode('delete')} className="btn-login-modal">Delete</Button>
                         )}
-                        {modalMode === 'edit' || modalMode === 'add' ? (
+                        {modalMode === 'add' ? (
                             <Button variant="primary" onClick={handleSaveEvent} className="btn-login-modal">
-                                {modalMode === 'add' ? 'Add Event' : 'Save Changes'}
+                                Add Event
                             </Button>
                         ) : null}
                         {modalMode === 'delete' && (
@@ -243,7 +234,6 @@ export const GoogleCalendar = () => {
                     </Modal.Footer>
                 </Modal>
             </div>
-            
         </GoogleOAuthProvider>
     );
 };

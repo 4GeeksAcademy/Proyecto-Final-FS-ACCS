@@ -49,7 +49,7 @@ export const BlogDetail = () => {
                     <div className="blog-detail-overlay">
                         <h1>{blog.title}</h1>
                         <div className="blog-detail-legend">
-                            <p><strong><FontAwesomeIcon icon={faUser} /></strong> {blog.author}</p>
+                            {/* <p><strong><FontAwesomeIcon icon={faUser} /></strong> {blog.author}</p> */}
                             <p><strong><FontAwesomeIcon icon={faTag} /></strong> {blog.source}</p>
                         </div>
                     </div>
@@ -62,7 +62,7 @@ export const BlogDetail = () => {
                         {blog.text && <p>{blog.text}</p>}
                     </div>
 
-                    <img src={blog.img_final} className="img-fluid mt-3 blog-detail-container-img-final" alt="Final" />
+                    {/* <img src={blog.img_final} className="img-fluid mt-3 blog-detail-container-img-final" alt="Final" /> */}
 
                     <div className="blog-detail-btn-container">
                         <Link to="/blog" className="btn btn-secondary mt-3 blog-detail-btn">➜</Link>

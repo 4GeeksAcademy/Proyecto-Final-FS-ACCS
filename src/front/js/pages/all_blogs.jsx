@@ -43,7 +43,7 @@ export const All_Blogs = props => {
     return (
         <div className="container all-blogs-container">
             <h1 className="display-4 mb-4 all-blogs-big-title">Blog</h1>
-            <div className="d-flex overflow-auto">
+            <div className="d-flex overflow-control">
                 {blogs.map(blog => (
                     <div key={blog.id} className="card all-blogs-card">
                         <Link to={`/blog/${blog.type}/${blog.id}`} className="stretched-link">
