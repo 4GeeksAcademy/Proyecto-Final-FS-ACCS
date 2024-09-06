@@ -73,18 +73,15 @@ export const Gestor_perfil = () => {
         const success = await actions.editUser(editableData);
         if (success) {
             setIsEditing(false);
-            alert("Saved successfully");
+            console.log("Saved successfully");
         } else {
             alert("Error saving data");
         }
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
 
     if (!userData) {
-        return <div>No user data found</div>;
+        navigate('/*');
     }
 
 
@@ -157,7 +154,7 @@ export const Gestor_perfil = () => {
                     <button
                         type="button"
                         onClick={handleSave}
-                        className="btn gestor-perfil-edit"
+                        className="btn gestor-perfil-save"
                     >
                         Save
                     </button>

@@ -15,6 +15,10 @@
     margin-bottom: 0px;
 }
 
+.profile-picture-perfil input {
+    margin-bottom: 0px;
+}
+
 .form-label {
     margin-right: 10px;
 }
@@ -127,6 +131,20 @@
     border-radius: 25pt;
     outline: none;
     border: 3px solid #FBEE84;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.gestor-perfil-save {
+    background-color: #075E81;
+    height: 40px;
+    color: #FBEE84;
+    width: 100%;
+    font-size: 14pt;
+    border-radius: 25pt;
+    outline: none;
+    border: 3px solid #075E81;
     font-family: "Poppins", sans-serif;
     font-weight: 700;
     font-style: normal;

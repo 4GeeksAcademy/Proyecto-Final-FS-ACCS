@@ -61,7 +61,7 @@ export const Register = () => {
             if (data && data.token) {
                 actions.setToken(data.token);
                 actions.setUser(data.user);
-                showAlert("Registration successful!", "success");
+                // showAlert("Registration successful!", "success");
                 navigate("/manage_babies");
             } else {
                 showAlert(data.msg || "Sign up failed!", "error");

@@ -8,6 +8,7 @@
 
 .ar-card-body {
     padding: 0px;
+    align-items: center;
 }
 
 /* Contenedor principal */
@@ -21,6 +22,7 @@
     width: 100%;
     padding-top: 0px;
     margin-top: 0px;
+    align-items: center;
 }
 
 
@@ -28,7 +30,6 @@
 
 .ar-calendar-card {
     width: 40%; 
-    margin: auto;
 }
 
 

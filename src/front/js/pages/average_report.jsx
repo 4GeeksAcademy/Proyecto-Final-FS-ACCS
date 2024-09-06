@@ -20,34 +20,28 @@ export const AverageReportPage = () => {
             navigate('/login');
             return;
         }
-
+    
         const fetchData = async () => {
             try {
+                setAverages(null);  
+                setExtremes({ max: null, min: null });
+        
                 const headers = {
                     'Authorization': `Bearer ${store.token}`,
                     'Content-Type': 'application/json'
                 };
-
+        
                 const averagesData = await actions.fetchAverages(babyId, interval, headers);
                 const extremesData = await actions.fetchExtremes(babyId, interval, headers);
+        
                 setAverages(averagesData);
                 setExtremes(extremesData);
-
-                const babyResponse = await fetch(`${process.env.BACKEND_URL}api/babies`, { headers });
-                if (!babyResponse.ok) {
-                    console.error('Error fetching babies:', await babyResponse.text());
-                    return;
-                }
-                const babies = await babyResponse.json();
-                const baby = babies.find(b => b.id === parseInt(babyId));
-                if (baby) {
-                    setBabyName(baby.name);
-                }
+        
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
-
+    
         fetchData();
     }, [babyId, interval, actions, store.token, navigate]);
 
@@ -88,7 +82,7 @@ export const AverageReportPage = () => {
                         },
                         value: {
                             formatter: function (val) {
-                                return avg.toFixed(2); // Muestra el valor promedio
+                                return avg.toFixed(2); 
                             },
                             color: '#111',
                             fontSize: '36px',
@@ -155,7 +149,6 @@ export const AverageReportPage = () => {
                                                     track: {
                                                         background: '#fff',
                                                         strokeWidth: '120%',
-
                                                     },
                                                     dataLabels: {
                                                         show: true,
@@ -163,12 +156,26 @@ export const AverageReportPage = () => {
                                                             color: '#888',
                                                             fontSize: '1px',
                                                             formatter: function () {
-                                                                return ' '
+                                                                return ' ';  
                                                             },
                                                         },
                                                         value: {
                                                             formatter: function (val) {
-                                                                return `${averages.bedtime.toFixed(2)}`; // Muestra el promedio y la unidad que desees
+                                                                let label;
+                                                                switch (interval) {
+                                                                    case 'weekly':
+                                                                        label = `${averages.bedtime.toFixed(2)}`;
+                                                                        break;
+                                                                    case 'biweekly':
+                                                                        label = `${averages.bedtime.toFixed(2)}`;
+                                                                        break;
+                                                                    case 'monthly':
+                                                                        label = `${averages.bedtime.toFixed(2)}`;
+                                                                        break;
+                                                                    default:
+                                                                        label = `${averages.bedtime.toFixed(2)}`;
+                                                                }
+                                                                return label;
                                                             },
                                                             color: '#075E81',
                                                             fontFamily: 'Poppins, sans-serif',

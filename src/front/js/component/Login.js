@@ -43,7 +43,7 @@ export const Login = () => {
 
 		const success = await actions.login(formData);
 		if (success) {
-			showAlert("Login successful!", "success");
+			// showAlert("Login successful!", "success");
 			navigate("/dashboard");
 		} else {
 			showAlert("Login failed. Please check your credentials.", "error");

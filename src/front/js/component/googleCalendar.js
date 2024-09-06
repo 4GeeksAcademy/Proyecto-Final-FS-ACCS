@@ -37,21 +37,18 @@ export const GoogleCalendar = () => {
 
     const fetchEvents = async () => {
         try {
-            // Define el rango de fechas (de hoy hasta los próximos 30 días)
-            const timeMin = new Date().toISOString(); // Fecha actual en formato ISO
-            const timeMax = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(); // Próximos 30 días
+            const timeMin = new Date().toISOString(); 
+            const timeMax = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(); 
 
-            // Llama a la API pasando el rango de fechas
             let response = await apiCalendar.listEvents({
-                timeMin,  // Fecha mínima (hoy)
-                timeMax,  // Fecha máxima (en 30 días)
+                timeMin,  
+                timeMax,  
                 showDeleted: false,
-                maxResults: 50, // Ajusta el número máximo de resultados si es necesario
-                orderBy: 'startTime',  // Ordenar los eventos por fecha de inicio
-                singleEvents: true  // Obtiene instancias de eventos recurrentes
+                maxResults: 50, 
+                orderBy: 'startTime',  
+                singleEvents: true  
             });
 
-            // Mapea los eventos recibidos
             const googleEvents = response.result.items.map(event => ({
                 id: event.id,
                 title: event.summary,
@@ -70,7 +67,7 @@ export const GoogleCalendar = () => {
             let response = await apiCalendar.handleAuthClick();
             if (response.access_token) {
                 setIsSignedIn(true);
-                fetchEvents(); // Fetch events after successful sign-in
+                fetchEvents(); 
             }
         } catch (error) {
             console.error("Error during sign-in: ", error);
@@ -117,8 +114,7 @@ export const GoogleCalendar = () => {
                 await apiCalendar.updateEvent(selectedEvent.id, event);
             }
 
-            // Refresh the events list after saving
-            await fetchEvents(); // Ensure we await this to ensure state is updated
+            await fetchEvents(); 
             setShowModal(false);
         } catch (error) {
             console.error("Error saving event: ", error);
@@ -140,7 +136,7 @@ export const GoogleCalendar = () => {
 
         try {
             await apiCalendar.deleteEvent(selectedEvent.id);
-            await fetchEvents(); // Ensure we await this to ensure state is updated
+            await fetchEvents(); 
             setShowModal(false);
         } catch (error) {
             console.error("Error deleting event: ", error);
@@ -159,7 +155,10 @@ export const GoogleCalendar = () => {
     return (
         <GoogleOAuthProvider clientId={CLIENT_ID}>
             <div>
-
+            <div className="calendar-btn-container">
+                <button onClick={handleSignIn}><FontAwesomeIcon icon={faGoogle} /></button>
+                <button onClick={handleAddEvent}>Add Event</button>
+            </div>
                 <div className="custom-calendar-container">
                     <Calendar
                         localizer={localizer}
@@ -244,10 +243,7 @@ export const GoogleCalendar = () => {
                     </Modal.Footer>
                 </Modal>
             </div>
-            <div className="calendar-btn-container">
-                <button onClick={handleSignIn}><FontAwesomeIcon icon={faGoogle} /></button>
-                <button onClick={handleAddEvent}>Add Event</button>
-            </div>
+            
         </GoogleOAuthProvider>
     );
 };

@@ -16,6 +16,12 @@
     border-radius: 20px;
 }
 
+.custom-calendar-container {
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
 .form-control {
     background-color: #ffffff;
     border: 3px solid #FBEE84;
@@ -39,6 +45,7 @@
     width: 100%;
     align-items: center;
     text-align: center;
+    margin-top: 45px;
 }
 
 .calendar-btn-container button {
@@ -234,6 +241,11 @@
     text-align: center;
 }
 
+.rbc-button-group {
+    padding-top: 0;
+    margin-top: 0px;
+}
+
 .rbc-btn-group button {
     background-color: #FBEE84;
     color: #075E81;
@@ -260,36 +272,6 @@
     gap: 10px;
 }
 
-
-
-/* .custom-modal .modal-content {
-    background-color: #075E81;
-    border-radius: 10px;
-    color: white;
-}
-
-.custom-modal .btn-primary,
-.custom-modal .btn-secondary,
-.custom-modal .btn-danger {
-    background-color: #B4E49D;
-    border: none;
-    color: white;
-}
-
-.custom-modal .btn-secondary {
-    background-color: #075E81;
-}
-
-.custom-modal .form-control {
-    background-color: #075E81;
-    color: white;
-    border-radius: 5px;
-    border: none;
-}
-
-.custom-modal .form-label {
-    color: white;
-} */
 
 .custom-calendar-container {
     padding: 0;

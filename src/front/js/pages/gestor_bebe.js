@@ -47,7 +47,7 @@ export const Gestor_bebe = () => {
         e.preventDefault();
         const success = await actions.updateBabyData(editableData);
         if (success) {
-            alert("Baby edited successfully!");
+            console.log("Baby edited successfully!");
             setIsEditing(false); // Cambia el estado a false después de mostrar la alerta
         } else {
             alert("Error saving data");
@@ -61,9 +61,9 @@ export const Gestor_bebe = () => {
             const success = await actions.uploadBabyPicture(id, formData);
             if (success) {
                 setImageSrc(URL.createObjectURL(formData.get('babyPhoto')));
-                alert("Picture uploaded successfully");
+                console.log("Picture uploaded successfully");
             } else {
-                alert("Error uploading picture"); 
+                // alert("Error uploading picture"); 
                 console.error("Error uploading picture");
             }
         } catch (error) {

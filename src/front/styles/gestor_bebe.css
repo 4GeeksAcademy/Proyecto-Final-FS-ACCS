@@ -62,7 +62,6 @@
 
 .form-gestor-bebe {
     display: flex;
-    margin-bottom: 15px;
     width: 100%;
 }
 
@@ -143,6 +142,7 @@
 
 .btn-container {
     margin-left: auto; 
+    margin-bottom: 15px;
 }
 
 .btn-upload-gestor-bebe {
